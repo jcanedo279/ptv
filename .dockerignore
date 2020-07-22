@@ -5,7 +5,6 @@ Dockerfile
 Dockerfile.prod
 
 ## Local
-venv
 __pycache__
 
 ## Docker
