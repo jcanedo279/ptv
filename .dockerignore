@@ -1,0 +1,13 @@
+node_modules
+build
+.dockerignore
+Dockerfile
+Dockerfile.prod
+
+## Local
+venv
+__pycache__
+
+## Docker
+.git
+build
