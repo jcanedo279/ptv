@@ -29,3 +29,7 @@ yarn-error.log*
 ## LOCAL
 venv
 __pycache__
+
+## Docker
+.git
+build
