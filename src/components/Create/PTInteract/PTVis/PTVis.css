@@ -1,0 +1,19 @@
+.PTVis {
+  position: relative;
+  width: 100%;
+  height: 60vw;
+  background-color: #000000;
+  outline: dashed;
+  outline-color: #8ed5cf;
+  color: white;
+  font-family: Arial;
+  text-align: center;
+}
+
+.canvas {
+  /* position: absolute; /* change */
+  /* width: 100%;
+  height: 100%; */
+  top: 0;
+  left: 0; */
+}

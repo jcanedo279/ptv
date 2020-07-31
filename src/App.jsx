@@ -1,14 +1,52 @@
 import React from "react";
-import Main from "./component/Main/Main";
+
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect,
+} from "react-router-dom";
+
+import Nav from "./components/Nav/Nav";
+import Home from "./components/Home/Home";
+import About from "./components/About/About";
+import Create from "./components/Create/Create";
+import NotFound from "./components/NotFound/NotFound";
 
 import "./App.css";
 
-function App() {
-  return (
-    <div className="App">
-      <Main />
-    </div>
-  );
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      dim: 5,
+      size: 5,
+      sV: "[0,0,0,0,0]",
+    };
+    this.saveUp = this.saveUp.bind(this);
+  }
+
+  saveUp(state) {
+    // this.setState(state);
+    console.log("saveUp ", this.state);
+  }
+
+  render() {
+    return (
+      <Router>
+        <div className="App">
+          <Nav />
+          <Switch>
+            <Route exact path="/" component={Home} />
+            <Route exact path="/create" component={Create} />
+            <Route exact path="/about" component={About} />
+            <Route path="/404" component={NotFound} />
+            <Redirect to="/404" />
+          </Switch>
+        </div>
+      </Router>
+    );
+  }
 }
 
 export default App;

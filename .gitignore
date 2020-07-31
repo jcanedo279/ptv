@@ -24,13 +24,13 @@ yarn-error.log*
 
 
 
-
-
 ## LOCAL
 venv
 __pycache__
 *.lock
 yarn.lock
+*.pyc
+
 
 ## Docker
 .git

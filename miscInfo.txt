@@ -1,0 +1,4 @@
+To list running python processes:
+ps -fA | grep python
+To kill a process by id:
+kill -9 pid
