@@ -33,18 +33,24 @@ class App extends React.Component {
 
   render() {
     return (
-      <Router>
-        <div className="App">
-          <Nav />
-          <Switch>
-            <Route exact path="/" component={Home} />
-            <Route exact path="/create" component={Create} />
-            <Route exact path="/about" component={About} />
-            <Route path="/404" component={NotFound} />
-            <Redirect to="/404" />
-          </Switch>
+      <div className="App">
+        {/* Import Links here */}
+
+        <div className="w3-margin-none">
+          <Router>
+            <div className="w3-padding-small">
+              <Nav />
+              <Switch>
+                <Route exact path="/" component={Home} />
+                <Route exact path="/create" component={Create} />
+                <Route exact path="/about" component={About} />
+                <Route path="/404" component={NotFound} />
+                <Redirect to="/404" />
+              </Switch>
+            </div>
+          </Router>
         </div>
-      </Router>
+      </div>
     );
   }
 }

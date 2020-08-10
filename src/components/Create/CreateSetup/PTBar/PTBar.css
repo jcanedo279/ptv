@@ -1,0 +1,29 @@
+.PTBar {
+}
+
+.ul {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  list-style: none;
+}
+
+.itemDiv {
+  width: 100%;
+  height: 50pt;
+}
+
+.item {
+  width: 200pt;
+  height: 50pt;
+}
+
+.halfItem {
+  width: 100pt;
+  height: 50pt;
+}
+
+.buttonFont {
+  font-size: larger;
+}

@@ -1,5 +1,8 @@
 import React from "react";
 
+import CreateNav from "./CreateNav/CreateNav";
+import FormVisualizer from "./FormVisualizer/FormVisualizer";
+
 import "./CreateForm.css";
 
 import axios from "axios";
@@ -8,13 +11,16 @@ class CreateForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      dim: 0,
-      size: 0,
+      curNav: "f1",
+      // Form Values
+      dim: 5,
+      size: 5,
       tileSize: 15,
-      sC: 0,
+      sC: 0.00001,
       sV: "",
       sM: "sZ",
-      manualCols: "true",
+      curCol: "mc",
+      // Output vertices
       verts: [],
     };
 
@@ -41,7 +47,7 @@ class CreateForm extends React.Component {
     console.log("manual colors changed to ", this.state.manualCols);
   }
 
-  handleSubmit(event) {
+  async handleSubmit(event) {
     event.preventDefault();
     console.log("submitted form =", this.state);
 
@@ -49,10 +55,17 @@ class CreateForm extends React.Component {
     // this.formGetReq(this.state)
     this.formPostReq(this.state);
     this.ttmReq(this.state.dim);
-    this.colorsReq(this.state.dim);
+    // console.log("colors before ,", this.state.colors);
+    // const colors = await this.colorsReq(this.state.dim);
 
-    // PROPS call here
+    // // PROPS call here
+    // // console.log("colors after ,", colors);
+    // // this.setState({ colors }, () => {
+    // //   this.props.saveUp(this.state);
+    // // });
     this.props.saveUp(this.state);
+    // this.props.saveColors(colors);
+    this.colorsReq(this.state.dim, this.state.curCol);
   }
 
   timeGetReq() {
@@ -121,7 +134,7 @@ class CreateForm extends React.Component {
       });
   }
 
-  colorsReq(dim) {
+  async colorsReq(dim, curCol) {
     dim = parseInt(dim);
     console.log("typeof dim ,", typeof dim);
     let numCols = 0;
@@ -130,10 +143,10 @@ class CreateForm extends React.Component {
     } else {
       numCols = (dim - 1) / 2;
     }
-    axios
+    let colors = await axios
       .post("http://localhost:3000/backend/getColors", {
         params: {
-          manualCols: this.state.manualCols,
+          curCols: curCol,
           numCols: numCols,
         },
       })
@@ -141,10 +154,12 @@ class CreateForm extends React.Component {
         // API output data
         console.log("Post-Req response.data.colors =", response.data.colors);
         this.props.saveColors(response.data.colors);
+        return response.data.colors;
       })
       .catch((error) => {
         console.log(error);
       });
+    return colors;
   }
 
   ttmReq(dim) {
@@ -164,88 +179,29 @@ class CreateForm extends React.Component {
       });
   }
 
-  componentDidMount() {
-    this.setState({ dim: 5, size: 5, sC: 0, sV: "[0, 0, 0, 0, 0]", sM: "sZ" });
-  }
-
   render() {
     return (
-      <div className="CreateForm">
-        <form onSubmit={this.handleSubmit}>
-          <input
-            type="number"
-            placeholder="dim"
-            name="dim"
-            onChange={this.handleInputChange}
-          />
-          <br />
-          <input
-            type="number"
-            placeholder="size"
-            name="size"
-            onChange={this.handleInputChange}
-          />
-          <br />
-          <input
-            type="number"
-            placeholder="shift constant"
-            name="sC"
-            step="0.00001"
-            onChange={this.handleInputChange}
-          />
-          <br />
-          <input
-            type="number"
-            placeholder="tile size"
-            name="tileSize"
-            step="0.00001"
-            onChange={this.handleInputChange}
-          />
-          <br />
-          <ul className="sMul">
-            <li>
-              <p>Shift by halves</p>
-              <input
-                type="radio"
-                id="sH"
-                value="sH"
-                name="sM"
-                onChange={this.handleInputChange}
-              />
-            </li>
+      <div className="CreateForm w3-container w3-teal">
+        <br />
 
-            <li>
-              <p>Shift by zeroes</p>
-              <input
-                type="radio"
-                id="sZ"
-                value="sZ"
-                name="sM"
-                onChange={this.handleInputChange}
-              />
-            </li>
+        <CreateNav
+          saveUp={(s) => {
+            this.setState(s);
+          }}
+        />
 
-            <li>
-              <p>Shift randomly</p>
-              <input
-                type="radio"
-                id="sR"
-                value="sR"
-                name="sM"
-                onChange={this.handleInputChange}
-              />
-            </li>
-          </ul>
-          <label htmlFor="manualCols">Custom Colors</label>{" "}
-          <input
-            type="checkbox"
-            name="manualCols"
-            onChange={this.handleCheckboxChange}
+        <div className="w3-container w3-grey" style={{ height: "400pt" }}>
+          <FormVisualizer
+            curNav={this.state.curNav}
+            curState={this.state}
+            saveStateUp={(state) => {
+              this.setState(state);
+            }}
           />
-          <br />
-          <button type="submit">Create</button>
-          <br />
-        </form>
+        </div>
+        <br />
+
+        <button onClick={this.handleSubmit}>Create</button>
       </div>
     );
   }

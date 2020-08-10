@@ -1,5 +1,4 @@
 .CreateForm {
-  background-color: #8ed5cf;
   color: white;
   padding: 40px;
   font-family: Arial;
@@ -13,4 +12,9 @@
   align-items: center;
   width: 100%;
   list-style: none;
+}
+
+.FormVisDiv {
+  width: 30%;
+  height: 100%;
 }

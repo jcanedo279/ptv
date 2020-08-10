@@ -2,9 +2,9 @@ import React from "react";
 
 import CreateForm from "./CreateForm/CreateForm";
 
-import CreateVis from "./CreateVis/CreateVis";
+import CreateSetup from "./CreateSetup/CreateSetup";
 
-import PTInteract from "./PTInteract/PTInteract";
+import CreateOut from "./CreateOut/CreateOut";
 
 import "./Create.css";
 
@@ -20,11 +20,16 @@ class Create extends React.Component {
       sV: "",
       verts: [],
       tile: {},
+      curOutMode: "singleDij",
     };
   }
 
   setTS(tS) {
     this.setState({ tileSize: tS });
+  }
+
+  setSingleDij() {
+    this.setState({ curOutMode: "singleDij" });
   }
 
   render() {
@@ -37,12 +42,11 @@ class Create extends React.Component {
             this.setState(s);
           }}
           saveColors={(colors) => {
-            const col = colors;
-            console.log(col);
-            this.setState({ colors: col });
+            this.setState({ colors });
           }}
           savettm={(ttm) => {
             this.setState({ ttm: ttm });
+            this.render();
           }}
           saveVerts={(v) => {
             const keys = Object.keys(v);
@@ -79,8 +83,9 @@ class Create extends React.Component {
         />
 
         <br />
+        <br />
 
-        <PTInteract
+        <CreateSetup
           dim={this.state.dim}
           size={this.state.size}
           sC={this.state.sC}
@@ -90,11 +95,13 @@ class Create extends React.Component {
           colors={this.state.colors}
           ttm={this.state.ttm}
           setTS={this.setTS.bind(this)}
+          setSingleDij={this.setSingleDij.bind(this)}
         />
 
         <br />
+        <br />
 
-        <CreateVis saveDown={this.state} />
+        <CreateOut saveDown={this.state} />
       </div>
     );
   }
