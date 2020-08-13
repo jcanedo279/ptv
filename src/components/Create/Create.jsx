@@ -18,9 +18,13 @@ class Create extends React.Component {
       sC: "",
       sM: "",
       sV: "",
+      source: "",
+      target: "",
+      idToVal: {},
+      idToCol: {},
       verts: [],
       tile: {},
-      curOutMode: "singleDij",
+      curOutMode: "",
     };
   }
 
@@ -28,15 +32,27 @@ class Create extends React.Component {
     this.setState({ tileSize: tS });
   }
 
+  setidToVal(idToVal) {
+    this.setState({ idToVal });
+  }
+
   setSingleDij() {
     this.setState({ curOutMode: "singleDij" });
   }
 
+  setSingleDijData(source, target) {
+    this.setState({ source, target });
+  }
+
+  resetDijOut() {
+    this.setState({ curOutMode: "", source: "", target: "" });
+  }
+
   render() {
-    console.log(this.state.tileSize);
     return (
       <div className="Create" ref={(createDiv) => (this.createDiv = createDiv)}>
         <CreateForm
+          resetDijOut={this.resetDijOut.bind(this)}
           tileSize={this.state.tileSize}
           saveUp={(s) => {
             this.setState(s);
@@ -75,9 +91,6 @@ class Create extends React.Component {
               }
               tiles.push(rV);
             }
-            {
-              console.log("tiles *", tiles);
-            }
             this.setState({ verts: verts, tiles: tiles });
           }}
         />
@@ -94,14 +107,21 @@ class Create extends React.Component {
           tiles={this.state.tiles}
           colors={this.state.colors}
           ttm={this.state.ttm}
+          source={this.state.source}
+          target={this.state.target}
           setTS={this.setTS.bind(this)}
+          setidToVal={this.setidToVal.bind(this)}
           setSingleDij={this.setSingleDij.bind(this)}
+          setSingleDijData={this.setSingleDijData.bind(this)}
         />
 
         <br />
         <br />
 
-        <CreateOut saveDown={this.state} />
+        <CreateOut
+          saveDown={this.state}
+          setSingleDij={this.setSingleDij.bind(this)}
+        />
       </div>
     );
   }

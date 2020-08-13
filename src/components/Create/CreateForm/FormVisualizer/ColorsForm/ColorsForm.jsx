@@ -139,7 +139,7 @@ class ColorsForm extends React.Component {
     console.log("handleTileCols manualCols ,", this.state.manualCols);
 
     let midInd = 0;
-    if (this.state.curState.dim % 2 == 0) {
+    if (this.state.curState.dim % 2 === 0) {
       midInd = this.state.curState.dim / 2 - 1;
     } else {
       midInd = (this.state.curState.dim - 1) / 2;
@@ -368,16 +368,16 @@ class ColorsForm extends React.Component {
           defaultValue={this.state.curState.curCol}
           onChange={this.handleColChange}
         >
-          <option value="None">// NONE //</option>
+          <option value="None">## NONE ##</option>
           <option value="mc">Manual Colors</option>
-          <option value="None">// CH PALETTES //</option>
+          <option value="None">## CH PALETTES ##</option>
           <option value="chp">CHP</option>
           <option value="chp_rnd4">CHP Palette r-.4</option>
           <option value="chp_s2d8_rd1">CHP s2.8 r.1</option>
-          <option value="None">// MPL PALETTES //</option>
+          <option value="None">## MPL PALETTES ##</option>
           <option value="mplp_GnBu_d">MPLP GnBu</option>
           <option value="mplp_seismic">MPLP seismic</option>
-          <option value="None">// CP MISCLELLANEOUS //</option>
+          <option value="None">## CP MISCLELLANEOUS ##</option>
           <option value="cp">Color Palette (CP)</option>
           <option value="cp_Accent">CP Accent</option>
           <option value="cp_cubehelix">CP cubehelix</option>
@@ -388,13 +388,13 @@ class ColorsForm extends React.Component {
           <option value="cp_tab10">CP tab10</option>
           <option value="cp_tab20">CP tab20</option>
           <option value="cp_tab20c">CP tab20c</option>
-          <option value="None">// CP RAINBOW //</option>
+          <option value="None">## CP RAINBOW ##</option>
           <option value="cp_gistncar">CP gist_ncar</option>
           <option value="cp_gistrainbow">CP gist_rainbow</option>
           <option value="cp_hsv">CP hsv</option>
           <option value="cp_nipyspectral">CP nipy_spectral</option>
           <option value="cp_rainbow">CP rainbow</option>
-          <option value="None">// CP 2 COLOR GRADIENTS //</option>
+          <option value="None">## CP 2 COLOR GRADIENTS ##</option>
           <option value="cp_afmhot">CP afmhot</option>
           <option value="cp_autumn">CP autumn</option>
           <option value="cp_binary">CP binary</option>
@@ -417,7 +417,7 @@ class ColorsForm extends React.Component {
           <option value="cp_winter">CP winter</option>
           <option value="cp_Wistia">CP Wistia</option>
           <option value="cp_YlOrRd">CP YlOrRd</option>
-          <option value="None">// CP 3 COLOR GRADIENTS //</option>
+          <option value="None">## CP 3 COLOR GRADIENTS ##</option>
           <option value="cp_BrBG">CP BrBG</option>
           <option value="cp_brg">CP brg</option>
           <option value="cp_bwr">CP bwr</option>

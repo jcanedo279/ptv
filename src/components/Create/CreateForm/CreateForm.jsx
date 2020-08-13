@@ -49,6 +49,7 @@ class CreateForm extends React.Component {
 
   async handleSubmit(event) {
     event.preventDefault();
+    this.props.resetDijOut();
     console.log("submitted form =", this.state);
 
     // API request

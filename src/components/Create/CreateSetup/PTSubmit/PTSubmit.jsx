@@ -4,12 +4,12 @@ class PTSubmit extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      singleDijSubmit: "",
+      curOutMode: "",
     };
   }
 
-  onSingleDijSubmit() {
-    console.log("hellos");
+  onSingleDij() {
+    this.props.setSingleDij();
   }
 
   render() {
@@ -21,7 +21,7 @@ class PTSubmit extends React.Component {
             ref={this.singleDijSubmit}
             name="singleDijSubmit"
             className="halfItem buttonFont w3-white w3-button w3-hover-grey"
-            onClick={this.onSingleDijSubmit.bind(this)}
+            onClick={this.onSingleDij.bind(this)}
           >
             Single Dijsktra
           </button>

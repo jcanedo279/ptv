@@ -7,31 +7,42 @@ class CreateOut extends React.Component {
     super(props);
     this.state = {
       curOutMode: "",
+      saveDown: {},
     };
+    this.noOut = this.noOut.bind(this);
+    this.singleDij = this.singleDij.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState({ saveDown: nextProps.saveDown });
+    console.log("nextProps CreateOut ,", nextProps);
+    this.setState({
+      curOutMode: nextProps.saveDown.curOutMode,
+      saveDown: nextProps.saveDown,
+    });
   }
 
   noOut() {
     return (
       <div>
-        <p>Cur Out Mode {this.state.saveDown.curOutMode}</p>
+        <p>Cur Out Mode {this.state.curOutMode}</p>
       </div>
     );
+  }
+
+  setSingleDijData(source, target) {
+    this.setState({ source, target });
   }
 
   singleDij() {
-    return <SingleDij />;
+    return <SingleDij saveDown={this.state.saveDown} />;
   }
 
   render() {
-    return (
-      <div>
-        <p>Cur Out Mode {this.state.saveDown.curOutMode}</p>
-      </div>
-    );
+    if (this.state.curOutMode === "") {
+      return this.noOut();
+    } else if (this.state.curOutMode === "singleDij") {
+      return this.singleDij();
+    }
   }
 }
 

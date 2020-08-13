@@ -10,8 +10,8 @@ export default class PTvis extends React.Component {
       invalidColor: `rgb(${0}, ${0}, ${0})`,
       sourceColor: `rgb(${255}, ${255}, ${255})`,
       targetColor: `rgb(${255}, ${255}, ${255})`,
-      sourceVert: "",
-      targetVert: "",
+      source: "",
+      target: "",
       vertices: [],
       canvasSize: {
         canvasWidth: window.innerWidth,
@@ -32,7 +32,6 @@ export default class PTvis extends React.Component {
     let tiles = nextProps.tiles;
 
     let colors = nextProps.colors;
-    console.log("nextProps.colors ,", colors);
 
     if (
       dim === undefined ||
@@ -44,7 +43,7 @@ export default class PTvis extends React.Component {
       return;
     }
 
-    console.log("nextProps ,", nextProps);
+    console.log("nextProps PTVis ,", nextProps);
 
     let ttm = nextProps.ttm;
     let cW = nextProps.cW;
@@ -66,7 +65,7 @@ export default class PTvis extends React.Component {
 
     if (verts.length > 0) {
       // This clears both canvases in case of a moving canvas (by dragging)
-      this.clearCanvas(this.canvasHex);
+      this.clearCanvas(this.canvasPT);
       this.clearCanvas(this.canvasUser);
 
       this.genData(verts);
@@ -102,12 +101,17 @@ export default class PTvis extends React.Component {
               cnt += 1;
 
               // 0 -> normal // -1 -> invalid // val =>manualVal
-              this.drawTile(this.canvasHex, vert, filCol, strokeStyle);
+              this.drawTile(this.canvasPT, vert, filCol, strokeStyle);
             }
           }
         }
       }
     }
+
+    if (nextProps.idToCol === {}) {
+      nextProps.setidToCol(idToCol);
+    }
+
     if (lITV !== {}) {
       let lastKeys = Object.keys(lITV);
       // Draw paths
@@ -145,7 +149,6 @@ export default class PTvis extends React.Component {
         this.state.tileOutlineColor
       );
     }
-
     this.setState({
       vertices: verts,
       tiles: tiles,
@@ -436,8 +439,8 @@ export default class PTvis extends React.Component {
 
   componentDidMount() {
     const { canvasWidth, canvasHeight } = this.state.canvasSize;
-    this.canvasHex.width = canvasWidth;
-    this.canvasHex.height = canvasHeight;
+    this.canvasPT.width = canvasWidth;
+    this.canvasPT.height = canvasHeight;
     this.canvasUser.width = canvasWidth;
     this.canvasUser.height = canvasHeight;
 
@@ -518,6 +521,7 @@ export default class PTvis extends React.Component {
     const clickVert = this.binSearchVerts(cord);
 
     if (clickVert !== undefined) {
+      this.props.setSource(clickVert);
       const dist = this.genVDist(clickVert);
       const phase = this.genPhase(clickVert);
       const id = `${dist} ${phase}`;
@@ -538,7 +542,6 @@ export default class PTvis extends React.Component {
           this.state.tileOutlineColor
         );
         this.setState({ source: clickVert });
-        this.props.setSource(clickVert);
       }
     }
   };
@@ -548,6 +551,7 @@ export default class PTvis extends React.Component {
     const clickVert = this.binSearchVerts(cord);
 
     if (clickVert !== undefined) {
+      this.props.setTarget(clickVert);
       const dist = this.genVDist(clickVert);
       const phase = this.genPhase(clickVert);
       const id = `${dist} ${phase}`;
@@ -568,7 +572,6 @@ export default class PTvis extends React.Component {
           this.state.tileOutlineColor
         );
         this.setState({ target: clickVert });
-        this.props.setTarget(clickVert);
       }
     }
   };
@@ -669,7 +672,7 @@ export default class PTvis extends React.Component {
       this.setState({
         mouseDown: false,
       });
-      this.props.setITV(this.state.idToVal);
+      this.props.setidToVal(this.state.idToVal);
     } else {
       console.log("Please Render A Tiling First mouseUp");
     }
@@ -689,7 +692,15 @@ export default class PTvis extends React.Component {
   };
 
   updateWindowDimensions() {
-    this.clearCanvas(this.canvasHex);
+    if (
+      this.canvasUser === undefined ||
+      this.canvasUser === null ||
+      this.canvasPT === undefined ||
+      this.canvasPT === null
+    ) {
+      return;
+    }
+    this.clearCanvas(this.canvasPT);
     this.clearCanvas(this.canvasUser);
     const canvasSize = {
       canvasWidth: window.innerWidth,
@@ -707,7 +718,7 @@ export default class PTvis extends React.Component {
       <div className="PTVis" ref={(ptVisDiv) => (this.ptVisDiv = ptVisDiv)}>
         <canvas
           className="canvas"
-          ref={(canvasHex) => (this.canvasHex = canvasHex)}
+          ref={(canvasPT) => (this.canvasPT = canvasPT)}
         />
         <canvas
           className="canvas"

@@ -82,11 +82,9 @@ class DimmensionsForm extends React.Component {
           {/* sM selector */}
           <label htmlFor="sM">Shift Method</label>
           <br />
-          <select name="sM" onChange={this.handleInputChange}>
+          <select name="sM" onChange={this.handleInputChange} defaultValue="sZ">
             <option value="sH">Shift By Halves</option>
-            <option value="sZ" selected="true">
-              Shift By Zeroes
-            </option>
+            <option value="sZ">Shift By Zeroes</option>
             <option value="sR">Shift Randomly</option>
           </select>
           <br />

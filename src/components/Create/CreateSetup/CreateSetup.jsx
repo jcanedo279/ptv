@@ -15,20 +15,22 @@ class CreateSetup extends React.Component {
       sC: "",
       sM: "",
       sV: "",
+      source: "",
+      target: "",
       verts: [],
       tile: {},
-      iTV: {},
+      idToVal: {},
+      idToCol: {},
       cW: false,
       cl: false,
       aS: false,
       aT: false,
-      source: "",
-      target: "",
+      curOutMode: "",
     };
   }
 
   componentWillReceiveProps(nextProps) {
-    console.log("nextProps", nextProps);
+    console.log("nextProps createSetup", nextProps);
     let dim = Number(nextProps.dim);
     let size = Number(nextProps.size);
     let sC = Number(nextProps.sC);
@@ -37,6 +39,8 @@ class CreateSetup extends React.Component {
     let tiles = nextProps.tiles;
     let colors = nextProps.colors;
     let ttm = nextProps.ttm;
+    let source = nextProps.source;
+    let target = nextProps.target;
     if (
       dim === undefined ||
       verts === undefined ||
@@ -55,6 +59,8 @@ class CreateSetup extends React.Component {
       tiles: tiles,
       colors: colors,
       ttm: ttm,
+      source: source,
+      target: target,
     });
   }
 
@@ -64,7 +70,7 @@ class CreateSetup extends React.Component {
 
   setCL() {
     this.setState({ cl: true });
-    this.setState({ iTV: {} });
+    this.setState({ idToVal: {} });
   }
 
   setAS(aS) {
@@ -79,20 +85,41 @@ class CreateSetup extends React.Component {
     this.setState({ cl: false });
   }
 
-  setITV(iTV) {
-    this.setState({ iTV });
+  setidToVal(idToVal) {
+    this.setState({ idToVal });
+    this.props.setidToVal(idToVal);
+  }
+
+  setidToCol(idToCol) {
+    this.setState({ idToCol });
   }
 
   setSource(source) {
-    this.setState({ source });
+    this.setState({ source }, () => {
+      this.props.setSingleDijData(source, this.state.target);
+    });
   }
 
   setTarget(target) {
-    this.setState({ target });
+    this.setState({ target }, () => {
+      this.props.setSingleDijData(this.state.source, target);
+    });
   }
 
   setSingleDij() {
-    this.props.setSingleDij();
+    // If the source and target are not set, we return to prevent singleDij without a source and target
+    if (this.state.source === "" || this.state.target === "") {
+      return;
+    }
+    // If the source and target are set, we clear here so we can remake it from somewhere else
+    this.props.setSingleDij("", "");
+    this.setState({ curOutMode: "singleDij", source: "", target: "" }, () => {
+      this.props.setSingleDij();
+    });
+  }
+
+  setSingleDijData(source, target) {
+    this.props.setSingleDijData(source, target);
   }
 
   render() {
@@ -117,11 +144,13 @@ class CreateSetup extends React.Component {
           aS={this.state.aS}
           aT={this.state.aT}
           cl={this.state.cl}
-          idToVal={this.state.iTV}
+          idToVal={this.state.idToVal}
+          idToCol={this.state.idToCol}
           source={this.state.source}
           target={this.state.target}
           //
-          setITV={this.setITV.bind(this)}
+          setidToVal={this.setidToVal.bind(this)}
+          setidToCol={this.setidToCol.bind(this)}
           setSource={this.setSource.bind(this)}
           setTarget={this.setTarget.bind(this)}
           resetCL={this.resetCL.bind(this)}

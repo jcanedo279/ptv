@@ -199,6 +199,7 @@ class ColorPalettes extends React.Component {
                 src={paletteName}
                 style={this.state.colorPaletteStyle}
                 onClick={this.handleInputChange}
+                alt="ch_palette_img"
               />
               <p className="hoverText" title="buzz hover text">
                 {this.pngNameToVal(paletteName)}
@@ -213,6 +214,7 @@ class ColorPalettes extends React.Component {
                 src={paletteName}
                 style={this.state.colorPaletteStyle}
                 onClick={this.handleInputChange}
+                alt="ch_palette_img"
               />
               <p className="hoverText" title="buzz hover text">
                 {this.pngNameToVal(paletteName)}
@@ -227,6 +229,7 @@ class ColorPalettes extends React.Component {
                 src={paletteName}
                 style={this.state.colorPaletteStyle}
                 onClick={this.handleInputChange}
+                alt="ch_palette_img"
               />
               <p className="hoverText" title="buzz hover text">
                 {this.pngNameToVal(paletteName)}
@@ -241,6 +244,7 @@ class ColorPalettes extends React.Component {
                 src={paletteName}
                 style={this.state.colorPaletteStyle}
                 onClick={this.handleInputChange}
+                alt="ch_palette_img"
               />
               <p className="hoverText" title="buzz hover text">
                 {this.pngNameToVal(paletteName)}
@@ -255,6 +259,7 @@ class ColorPalettes extends React.Component {
                 src={paletteName}
                 style={this.state.colorPaletteStyle}
                 onClick={this.handleInputChange}
+                alt="ch_palette_img"
               />
               <p className="hoverText" title="buzz hover text">
                 {this.pngNameToVal(paletteName)}
@@ -269,6 +274,7 @@ class ColorPalettes extends React.Component {
                 src={paletteName}
                 style={this.state.colorPaletteStyle}
                 onClick={this.handleInputChange}
+                alt="ch_palette_img"
               />
               <p className="hoverText" title="buzz hover text">
                 {this.pngNameToVal(paletteName)}
@@ -285,7 +291,7 @@ class ColorPalettes extends React.Component {
     // If colname contains _ and the last part of colName is icon, then we return an empty string
     if (colName.includes("_") !== -1) {
       if (
-        colName.slice(colName.lastIndexOf("_") + 1, colName.length) == "icon"
+        colName.slice(colName.lastIndexOf("_") + 1, colName.length) === "icon"
       ) {
         return " ";
       }
