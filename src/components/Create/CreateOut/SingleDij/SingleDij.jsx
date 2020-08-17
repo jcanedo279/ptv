@@ -1,5 +1,20 @@
 import React from "react";
 
+import {
+  TextField,
+  Button,
+  Select,
+  MenuItem,
+  ListSubheader,
+  FormControlLabel,
+  Checkbox,
+  Grid,
+} from "@material-ui/core";
+import { Palette, Replay, Stop } from "@material-ui/icons";
+
+import InputSlider from "./InputSlider/InputSlider";
+import Typography from "@material-ui/core/Typography";
+
 import axios from "axios";
 
 import "./SingleDij.css";
@@ -8,20 +23,30 @@ class SingleDij extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      maxGen: 10,
+      algMutexInUse: false,
+      mouseDown: false,
+      maxGen: 1,
+      curCol: "mc",
+      Astar: false,
       saveDown: {},
       canvasSize: {
-        canvasWidth: window.innerWidth * 0.9,
+        canvasWidth: window.innerWidth * 0.94,
         canvasHeight: window.innerWidth * 0.6,
       },
       center: {
-        x: (window.innerWidth * 0.9) / 2,
+        x: (window.innerWidth * 0.94) / 2,
         y: (window.innerWidth * 0.6) / 2,
+      },
+      scoring: {
+        sourceBias: 1,
+        targetBias: 1,
       },
     };
 
     this.canvasPT = React.createRef();
     this.canvasSingleDij = React.createRef();
+
+    this.maxGenRef = React.createRef();
 
     this.startAnimation = this.startAnimation.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -59,11 +84,11 @@ class SingleDij extends React.Component {
     this.clearCanvas(this.canvasPT);
     this.clearCanvas(this.canvasSingleDij);
     const canvasSize = {
-      canvasWidth: window.innerWidth * 0.9,
+      canvasWidth: window.innerWidth * 0.94,
       canvasHeight: window.innerWidth * 0.6,
     };
     const center = {
-      x: (window.innerWidth * 0.9) / 2,
+      x: (window.innerWidth * 0.94) / 2,
       y: (window.innerWidth * 0.6) / 2,
     };
     this.setState({ canvasSize: canvasSize, center: center });
@@ -90,6 +115,7 @@ class SingleDij extends React.Component {
   }
 
   async startAnimation() {
+    this.setState({ maxGen: this.state.maxGen, algMutexInUse: true });
     let tilingNeighbourhoodData = this.genTilingNeighbourhoods();
     let tIndToNeighbourhood = tilingNeighbourhoodData.tIndToNeighbourhood;
     let idTotInd = tilingNeighbourhoodData.idTotInd;
@@ -97,9 +123,10 @@ class SingleDij extends React.Component {
     const idToVal = this.state.saveDown.idToVal;
     let idToCol = this.state.saveDown.idToCol;
 
-    console.log(idToVal);
+    console.log("idToVal ,", idToVal);
 
     let source = this.state.saveDown.source;
+    let target = this.state.saveDown.target;
 
     let vertToMinDist = {};
     vertToMinDist[source] = 0;
@@ -138,12 +165,14 @@ class SingleDij extends React.Component {
 
     let curGen = 0;
 
+    let printPath = false;
+
+    this.clearCanvas(this.canvasSingleDij);
     this.displayGrid();
     this.displayInvalid(idTotInd);
     // this.displayMinDist(vertToMinDist);
 
     // LOOP
-    // convert curTvert to id
     while (unvisited.size > 0 && curGen < this.state.maxGen) {
       unvisited.delete(curTvert);
 
@@ -160,15 +189,14 @@ class SingleDij extends React.Component {
       for (let nInd = 0; nInd < curNLen; nInd++) {
         const nTind = curNeighbourhood[nInd].map(Number);
         const curNVert = tiles[nTind[0]][nTind[2]][nTind[1]][nTind[3]];
+
+        if (curNVert == target) {
+          printPath = true;
+        }
+
         const curNdist = this.genVDist(curNVert);
         const curNphase = this.genPhase(curNVert);
         const idStr = `${curNdist} ${curNphase}`;
-        // let id = idStr.split(" ");
-        // id = id.map(Number);
-        // let nvVert = tiles[id[0]][id[2]][id[1]][id[3]];
-        // const newNdist = this.genVDist(nvVert);
-        // const newNphase = this.genPhase(nvVert);
-        // console.log(idToVal[`${newNdist} ${newNphase}`]);
 
         if (idToVal[idStr] === -1) {
           continue;
@@ -181,11 +209,14 @@ class SingleDij extends React.Component {
           curDist < vertToMinDist[curNVert]
         ) {
           vertToMinDist[curNVert] = curDist;
-          minDistsPrev[curNVert] = curTind;
+          minDistsPrev[curNVert] = curTvert;
         }
       }
 
       await this.displayMinDist(vertToMinDist);
+      if (printPath) {
+        await this.findPath(minDistsPrev);
+      }
 
       let curMin = "hello";
       let curMinDist = Number.POSITIVE_INFINITY;
@@ -204,9 +235,30 @@ class SingleDij extends React.Component {
         let id = idStr.split(" ");
         id = id.map(Number);
         let nvVert = tiles[id[0]][id[2]][id[1]][id[3]];
-        if (minDist < curMinDist && unvisited.has(nvVert)) {
-          curMinDist = minDist;
-          curMin = nvVert;
+
+        if (this.state.Astar) {
+          let targetBias = this.state.scoring.targetBias;
+          let sourceBias = this.state.scoring.sourceBias;
+
+          let nvCenter = this.getCenter(nvVert);
+          let targetCenter = this.getCenter(this.state.saveDown.target);
+
+          let interCenterDist = this.findInterCenterDist(
+            nvCenter,
+            targetCenter
+          );
+
+          let score = sourceBias * minDist + targetBias * interCenterDist;
+
+          if (score < curMinDist && unvisited.has(nvVert)) {
+            curMinDist = score;
+            curMin = nvVert;
+          }
+        } else {
+          if (minDist < curMinDist && unvisited.has(nvVert)) {
+            curMinDist = minDist;
+            curMin = nvVert;
+          }
         }
       }
 
@@ -218,6 +270,7 @@ class SingleDij extends React.Component {
       curGen += 1;
       curTvert = curMin;
     }
+    this.setState({ algMutexInUse: false });
   }
 
   async displayMinDist(vertToMinDist) {
@@ -225,7 +278,7 @@ class SingleDij extends React.Component {
     const minDists = Array.from(minDistSet);
     minDists.sort();
     const numCols = minDists.length;
-    const colors = await this.asyncColorsReq(numCols, "chp");
+    const colors = await this.asyncColorsReq(numCols, this.state.curCol);
 
     let minDistToCol = {};
     for (let c = 0; c < numCols; c++) {
@@ -242,8 +295,35 @@ class SingleDij extends React.Component {
         [v[4], v[5]],
         [v[6], v[7]],
       ];
-      this.drawTile(this.canvasSingleDij, newV, distCol);
+      this.drawTile(this.canvasSingleDij, newV, distCol, distCol);
     }
+    this.drawTile(
+      this.canvasSingleDij,
+      this.state.saveDown.source,
+      "gold",
+      this.state.saveDown.invalidColor
+    );
+    this.drawText(
+      this.canvasSingleDij,
+      "S",
+      this.getCenter(this.state.saveDown.source)
+    );
+    this.drawTile(
+      this.canvasSingleDij,
+      this.state.saveDown.target,
+      "gold",
+      this.state.saveDown.invalidColor
+    );
+    this.drawText(
+      this.canvasSingleDij,
+      "T",
+      this.getCenter(this.state.saveDown.target)
+    );
+  }
+
+  // Find the distance between two centers
+  findInterCenterDist(c1, c2) {
+    return Math.sqrt((c1.x - c2.x) ** 2 + (c1.y - c2.y) ** 2);
   }
 
   displayGrid() {
@@ -274,7 +354,7 @@ class SingleDij extends React.Component {
             idToCol[`${dist} ${phase}`] = filCol;
 
             // 0 -> normal // -1 -> invalid // val =>manualVal
-            this.drawTile(this.canvasPT, vert, filCol);
+            this.drawTile(this.canvasPT, vert, filCol, filCol);
           }
         }
       }
@@ -295,6 +375,10 @@ class SingleDij extends React.Component {
         let phase = parseFloat(lID.substring(lID.indexOf(" ")));
         let id = `${dist} ${phase}`;
         let tIndStr = idTotInd[id];
+        // Very very hacky
+        if (tIndStr === undefined) {
+          continue;
+        }
         let tInd = tIndStr.split(" ");
         tInd = tInd.map(Number);
         let vert = tiles[tInd[0]][tInd[2]][tInd[1]][tInd[3]];
@@ -304,6 +388,37 @@ class SingleDij extends React.Component {
         this.drawTile(this.canvasPT, vert, filCol, strokeStyle);
       }
     }
+  }
+
+  async findPath(minDistPrev) {
+    let curT = this.state.saveDown.target;
+    console.log(curT);
+
+    let path = [curT];
+    while (curT !== this.state.saveDown.source) {
+      console.log("curT before ,", curT);
+      curT = minDistPrev[curT];
+      path.push(curT);
+    }
+    await this.displayPath(path);
+  }
+
+  async displayPath(path) {
+    for (let p = 0; p < path.length; p++) {
+      this.drawTile(this.canvasSingleDij, path[p], "gold", "gold");
+    }
+  }
+
+  drawText(canvasID, text, center) {
+    const ctx = canvasID.getContext("2d");
+    const fontSize = Math.max(2, this.state.saveDown.tileSize - 5);
+    ctx.font = `${fontSize}px Arial`;
+    ctx.fillStyle = "black";
+    ctx.fillText(
+      text,
+      center.x + this.state.center.x - fontSize / 2 + 2,
+      center.y + this.state.center.y + fontSize / 2 - 1
+    );
   }
 
   drawTile(
@@ -424,8 +539,16 @@ class SingleDij extends React.Component {
     this.setState({ [event.target.name]: event.target.value });
   }
 
+  handleAstarClick() {
+    console.log(`Astar value changed to`, !this.state.Astar);
+    this.setState({ Astar: !this.state.Astar });
+  }
+
   handleSubmit(event) {
     event.preventDefault();
+    if (!this.state.algMutexInUse) {
+      this.props.reAnimate();
+    }
   }
 
   genTilingNeighbourhoods() {
@@ -553,28 +676,244 @@ class SingleDij extends React.Component {
     }
   }
 
+  dragCanvas = (e) => {
+    const mouseUpCord = this.getMouseCordInCanvas(e);
+    const deltaX = mouseUpCord.x - this.state.mouseDownCord.x;
+    const deltaY = mouseUpCord.y - this.state.mouseDownCord.y;
+    const newCenter = {
+      x: this.state.center.x + deltaX,
+      y: this.state.center.y + deltaY,
+    };
+    this.setState({ center: newCenter });
+  };
+
+  getMouseCordInCanvas = (e) => {
+    const rect = e.target.getBoundingClientRect();
+    var x = e.clientX - rect.left - this.state.center.x; //x position within the element.
+    var y = e.clientY - rect.top - this.state.center.y; //y position within the element.
+    x = Number(x);
+    y = Number(y);
+    return { x: x, y: y };
+  };
+
+  onMouseMove = (e) => {
+    if (this.state.mouseDown) {
+      this.dragCanvas(e);
+    } else {
+      // console.log("The moving mouse is up");
+    }
+  };
+
+  onMouseDown = (e) => {
+    if (!this.state.mouseDown) {
+      this.setState({ tempGen: this.state.maxGen, maxGen: 1 });
+      this.setState({ curPath: new Set() });
+      console.log("new path");
+      this.setState({
+        mouseDown: true,
+        mouseDownCord: this.getMouseCordInCanvas(e),
+      });
+    }
+  };
+
+  onMouseUp = () => {
+    this.setState(
+      {
+        mouseDown: false,
+        maxGen: this.state.tempGen,
+      },
+      () => {
+        this.clearCanvas(this.canvasSingleDij);
+        this.clearCanvas(this.canvasPT);
+        this.startAnimation();
+      }
+    );
+  };
+
   render() {
     return (
-      <div>
-        <form onSubmit={this.handleSubmit}>
-          <label htmlFor="maxGen">Max Gen</label>
-          <input
-            name="maxGen"
+      <div className="container w3-teal">
+        <form
+          className="w3-grey w3-margin w3-padding-top"
+          onSubmit={this.handleSubmit}
+        >
+          <TextField
+            inputRef={(ref) => {
+              this.maxGenRef = ref;
+            }}
+            id="id_maxGen"
             type="number"
+            defaultValue={this.state.maxGen}
+            name="maxGen"
             onChange={this.handleInputChange}
-            placeholder={this.state.maxGen}
+            label="Max Generation"
+            inputProps={{ min: 1 }}
           />
-          <button type="submit">Re-Animate</button>
+          <br />
+          <br />
+          <Palette />{" "}
+          <Select
+            helpertext="Color Palettes"
+            id="id_curCol"
+            name="curCol"
+            defaultValue={this.state.curCol}
+            onChange={this.handleInputChange}
+          >
+            <ListSubheader>Cube Helix Palettes</ListSubheader>
+            <MenuItem value="chp">CHP</MenuItem>
+            <MenuItem value="chp_rnd4">CHP Palette r-.4</MenuItem>
+            <MenuItem value="chp_s2d8_rd1">CHP s2.8 r.1</MenuItem>
+            <ListSubheader>MPL Palettes</ListSubheader>
+            <MenuItem value="mplp_GnBu_d">MPLP GnBu</MenuItem>
+            <MenuItem value="mplp_seismic">MPLP seismic</MenuItem>
+            <ListSubheader>CP: Miscellaneous</ListSubheader>
+            <MenuItem value="cp">Color Palette (CP)</MenuItem>
+            <MenuItem value="cp_Accent">CP Accent</MenuItem>
+            <MenuItem value="cp_cubehelix">CP cubehelix</MenuItem>
+            <MenuItem value="cp_flag">CP flag</MenuItem>
+            <MenuItem value="cp_Paired">CP Paired</MenuItem>
+            <MenuItem value="cp_Pastel1">CP Pastel1</MenuItem>
+            <MenuItem value="cp_Pastel2">CP Pastel2</MenuItem>
+            <MenuItem value="cp_tab10">CP tab10</MenuItem>
+            <MenuItem value="cp_tab20">CP tab20</MenuItem>
+            <MenuItem value="cp_tab20c">CP tab20c</MenuItem>
+            <ListSubheader>CP: Rainbow</ListSubheader>
+            <MenuItem value="mc">Manual Colors</MenuItem>
+            <MenuItem value="cp_gistncar">CP gist_ncar</MenuItem>
+            <MenuItem value="cp_gistrainbow">CP gist_rainbow</MenuItem>
+            <MenuItem value="cp_hsv">CP hsv</MenuItem>
+            <MenuItem value="cp_nipyspectral">CP nipy_spectral</MenuItem>
+            <MenuItem value="cp_rainbow">CP rainbow</MenuItem>
+            <ListSubheader>CP: Gradient2</ListSubheader>
+            <MenuItem value="cp_afmhot">CP afmhot</MenuItem>
+            <MenuItem value="cp_autumn">CP autumn</MenuItem>
+            <MenuItem value="cp_binary">CP binary</MenuItem>
+            <MenuItem value="cp_bone">CP bone</MenuItem>
+            <MenuItem value="cp_cividis">CP cividis</MenuItem>
+            <MenuItem value="cp_cool">CP cool</MenuItem>
+            <MenuItem value="cp_copper">CP copper</MenuItem>
+            <MenuItem value="cp_hot">CP hot</MenuItem>
+            <MenuItem value="cp_inferno">CP inferno</MenuItem>
+            <MenuItem value="cp_magma">CP magma</MenuItem>
+            <MenuItem value="cp_mako">CP mako</MenuItem>
+            <MenuItem value="cp_plasma">CP plasma</MenuItem>
+            <MenuItem value="cp_PuBuGn">CP PuBuGn</MenuItem>
+            <MenuItem value="cp_Purples">CP Purples</MenuItem>
+            <MenuItem value="cp_RdPu">CP RdPu</MenuItem>
+            <MenuItem value="cp_rocket">CP rocket</MenuItem>
+            <MenuItem value="cp_spring">CP spring</MenuItem>
+            <MenuItem value="cp_summer">CP summer</MenuItem>
+            <MenuItem value="cp_viridis">CP viridis</MenuItem>
+            <MenuItem value="cp_winter">CP winter</MenuItem>
+            <MenuItem value="cp_Wistia">CP Wistia</MenuItem>
+            <MenuItem value="cp_YlOrRd">CP YlOrRd</MenuItem>
+            <ListSubheader>CP: Gradient3</ListSubheader>
+            <MenuItem value="cp_BrBG">CP BrBG</MenuItem>
+            <MenuItem value="cp_brg">CP brg</MenuItem>
+            <MenuItem value="cp_bwr">CP bwr</MenuItem>
+            <MenuItem value="cp_CMRmap">CP CMRmap</MenuItem>
+            <MenuItem value="cp_gistearth">CP gist_earth</MenuItem>
+            <MenuItem value="cp_giststern">CP gist_stern</MenuItem>
+            <MenuItem value="cp_gnuplot">CP gnuplot</MenuItem>
+            <MenuItem value="cp_gnuplot2">CP gnuplot2</MenuItem>
+            <MenuItem value="cp_icefire">CP icefire</MenuItem>
+            <MenuItem value="cp_ocean">CP ocean</MenuItem>
+            <MenuItem value="cp_PiYG">CP PiYG</MenuItem>
+            <MenuItem value="cp_PRGn">CP PRGn</MenuItem>
+            <MenuItem value="cp_prism">CP prism</MenuItem>
+            <MenuItem value="cp_RdBu">CP RdBu</MenuItem>
+            <MenuItem value="cp_RdGy">CP RdGy</MenuItem>
+            <MenuItem value="cp_RdYlBu">CP RdYlBu</MenuItem>
+            <MenuItem value="cp_RdYlGn">CP RdYlGn</MenuItem>
+            <MenuItem value="cp_seismic">CP seismic</MenuItem>
+            <MenuItem value="cp_Spectral">CP Spectral</MenuItem>
+            <MenuItem value="cp_terrain">CP terrain</MenuItem>
+            <MenuItem value="cp_vlag">CP vlag</MenuItem>
+          </Select>
+          <br />
+          <br />
+          <FormControlLabel
+            value="Astar"
+            control={<Checkbox color="primary" />}
+            label="A* Approximation"
+            labelPlacement="start"
+            onClick={this.handleAstarClick.bind(this)}
+          />
+          <br />
+          <div style={{ position: "relative", alignContent: "center" }}>
+            <Grid
+              style={{ marginLeft: "200px" }}
+              container
+              spacing={3}
+              alignItems="center"
+            >
+              <Typography id="id_sourceSlider" gutterBottom>
+                Source Bias
+              </Typography>
+              <Grid item xs>
+                <InputSlider
+                  id="id_sourceSlider"
+                  saveBiasUp={(sourceBias) => {
+                    this.setState({
+                      scoring: {
+                        sourceBias: sourceBias,
+                        targetBias: this.state.scoring.targetBias,
+                      },
+                    });
+                  }}
+                />
+              </Grid>
+              {/*  */}
+              <br />
+              {/*  */}
+              <Typography id="id_targetSlider" gutterBottom>
+                Target Bias
+              </Typography>
+              <Grid item xs>
+                <InputSlider
+                  id="id_targetSlider"
+                  saveBiasUp={(targetBias) => {
+                    this.setState({
+                      scoring: {
+                        sourceBias: this.state.scoring.sourceBias,
+                        targetBias: targetBias,
+                      },
+                    });
+                  }}
+                />
+              </Grid>
+            </Grid>
+          </div>
+          <br />
+          <Button variant="contained" type="submit" startIcon={<Replay />}>
+            Re-Animate
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() => {
+              this.maxGenRef.valueAsNumber = 1;
+              this.setState({ maxGen: 1 });
+            }}
+            startIcon={<Stop />}
+          >
+            Stop
+          </Button>
         </form>
 
         <div className="canvasDiv">
           <canvas
             className="canvasDij"
             ref={(canvasPT) => (this.canvasPT = canvasPT)}
+            onMouseMove={this.onMouseMove}
+            onMouseDown={this.onMouseDown}
+            onMouseUp={this.onMouseUp}
           />
           <canvas
             className="canvasDij"
             ref={(canvasSingleDij) => (this.canvasSingleDij = canvasSingleDij)}
+            onMouseMove={this.onMouseMove}
+            onMouseDown={this.onMouseDown}
+            onMouseUp={this.onMouseUp}
           />
         </div>
       </div>

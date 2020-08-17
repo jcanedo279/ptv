@@ -24,7 +24,7 @@ class CreateOut extends React.Component {
   noOut() {
     return (
       <div>
-        <p>Cur Out Mode {this.state.curOutMode}</p>
+        <p>Create an animation above</p>
       </div>
     );
   }
@@ -34,7 +34,14 @@ class CreateOut extends React.Component {
   }
 
   singleDij() {
-    return <SingleDij saveDown={this.state.saveDown} />;
+    return (
+      <SingleDij
+        saveDown={this.state.saveDown}
+        reAnimate={() => {
+          this.setState({ curOutMode: "singleDij" });
+        }}
+      />
+    );
   }
 
   render() {

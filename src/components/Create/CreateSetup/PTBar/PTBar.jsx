@@ -1,5 +1,8 @@
 import React from "react";
 
+import { Button } from "@material-ui/core";
+import { Layers, Flag, LayersClear, TripOrigin } from "@material-ui/icons";
+
 import "./PTBar.css";
 
 class PTBar extends React.Component {
@@ -88,53 +91,57 @@ class PTBar extends React.Component {
   render() {
     return (
       <div className="w3-bar w3-container w3-teal">
+        <br />
         <div className="w3-bar-item itemDiv">
-          {/* <p>Click Walls</p> */}
-          {/* <input type="checkbox" name="cW" onChange={this.onCW.bind(this)} /> */}
-          <button
+          <Button
             ref={this.cwRef}
             name="cW"
-            className="item buttonFont w3-white w3-button w3-hover-grey"
+            variant="contained"
             onClick={this.onCW.bind(this)}
+            size="large"
+            startIcon={<Layers />}
           >
             Click Walls
-          </button>
+          </Button>
         </div>
 
         <div className="w3-bar-item itemDiv">
-          {/* <input type="button" name="cl" onClick={this.onCL.bind(this)} /> */}
-          <button
+          <Button
             ref={this.clRef}
             name="cl"
-            className="item buttonFont w3-white w3-button w3-hover-grey"
+            variant="contained"
             onClick={this.onCL.bind(this)}
+            size="large"
+            startIcon={<LayersClear />}
           >
-            Clear
-          </button>
+            Clear Walls
+          </Button>
         </div>
 
         <div className="w3-bar-item itemDiv">
-          {/* <input type="button" name="cl" onClick={this.onCL.bind(this)} /> */}
-          <button
+          <Button
             ref={this.addSourceRef}
             name="addSource"
-            className="halfItem buttonFont w3-white w3-button w3-hover-grey"
+            variant="contained"
             onClick={this.onAddSource.bind(this)}
+            size="large"
+            startIcon={<TripOrigin />}
           >
             Add Source
-          </button>
+          </Button>
         </div>
 
         <div className="w3-bar-item itemDiv">
-          {/* <input type="button" name="cl" onClick={this.onCL.bind(this)} /> */}
-          <button
+          <Button
             ref={this.addTargetRef}
-            name="addSource"
-            className="halfItem buttonFont w3-white w3-button w3-hover-grey"
+            name="addTarget"
+            variant="contained"
             onClick={this.onAddTarget.bind(this)}
+            size="large"
+            startIcon={<Flag />}
           >
             Add Target
-          </button>
+          </Button>
         </div>
       </div>
     );

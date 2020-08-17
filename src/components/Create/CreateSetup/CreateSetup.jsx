@@ -35,6 +35,7 @@ class CreateSetup extends React.Component {
     let size = Number(nextProps.size);
     let sC = Number(nextProps.sC);
     let sM = nextProps.sM;
+    let tileSize = nextProps.tileSize;
     let verts = nextProps.vertices;
     let tiles = nextProps.tiles;
     let colors = nextProps.colors;
@@ -55,6 +56,7 @@ class CreateSetup extends React.Component {
       size: size,
       sC: sC,
       sM: sM,
+      tileSize: tileSize,
       verts: verts,
       tiles: tiles,
       colors: colors,
@@ -136,6 +138,7 @@ class CreateSetup extends React.Component {
         <PTVis
           dim={this.state.dim}
           size={this.state.size}
+          tileSize={this.state.tileSize}
           vertices={this.state.verts}
           tiles={this.state.tiles}
           colors={this.state.colors}

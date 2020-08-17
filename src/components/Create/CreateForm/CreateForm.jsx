@@ -1,5 +1,8 @@
 import React from "react";
 
+import { Button } from "@material-ui/core";
+import { Publish } from "@material-ui/icons";
+
 import CreateNav from "./CreateNav/CreateNav";
 import FormVisualizer from "./FormVisualizer/FormVisualizer";
 
@@ -202,7 +205,16 @@ class CreateForm extends React.Component {
         </div>
         <br />
 
-        <button onClick={this.handleSubmit}>Create</button>
+        <Button
+          variant="contained"
+          onClick={this.handleSubmit}
+          size="large"
+          startIcon={<Publish />}
+        >
+          Create
+        </Button>
+        <br />
+        <br />
       </div>
     );
   }

@@ -103,6 +103,7 @@ class Create extends React.Component {
           size={this.state.size}
           sC={this.state.sC}
           sM={this.state.sM}
+          tileSize={this.state.tileSize}
           vertices={this.state.verts}
           tiles={this.state.tiles}
           colors={this.state.colors}

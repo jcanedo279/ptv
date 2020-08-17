@@ -1,5 +1,21 @@
 import React from "react";
 
+import {
+  TextField,
+  InputAdornment,
+  MenuItem,
+  Select,
+  InputLabel,
+} from "@material-ui/core";
+import {
+  Height,
+  FormatLineSpacing,
+  ZoomOutMap,
+  BlurCircular,
+  Functions,
+  Publish,
+} from "@material-ui/icons";
+
 import "./DimmensionsForm.css";
 
 class DimmensionsForm extends React.Component {
@@ -10,6 +26,21 @@ class DimmensionsForm extends React.Component {
       size: this.props.curState.size,
       sC: this.props.curState.sC,
       tileSize: this.props.curState.tileSize,
+      sM: this.props.curState.sM,
+      shiftMethods: [
+        {
+          value: "sH",
+          label: "Shift By Halves",
+        },
+        {
+          value: "sZ",
+          label: "Shift By Zeroes",
+        },
+        {
+          value: "sR",
+          label: "Shift Randomly",
+        },
+      ],
     };
 
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -39,55 +70,94 @@ class DimmensionsForm extends React.Component {
   render() {
     return (
       <div className="DimmensionsForm">
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
+        />
+
         <br />
         <form onSubmit={this.handleSubmit}>
-          <label htmlFor="dim">Dimmension</label>
-          <br />
-          <input
+          <TextField
+            id="id_dim"
             type="number"
-            placeholder={this.state.dim}
+            defaultValue={this.state.dim}
             name="dim"
             onChange={this.handleInputChange}
+            label="Dimmension"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <BlurCircular />
+                </InputAdornment>
+              ),
+            }}
+            inputProps={{ min: 3, step: 1 }}
           />
           <hr />
-          <label htmlFor="size">Size</label>
-          <br />
-          <input
+          <TextField
+            id="id_size"
             type="number"
-            placeholder={this.state.size}
+            defaultValue={this.state.size}
             name="size"
             onChange={this.handleInputChange}
+            label="Size"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Height />
+                </InputAdornment>
+              ),
+            }}
+            inputProps={{ min: 0 }}
           />
           <hr />
-          <label htmlFor="sC">Shift Constant</label>
-          <br />
-          <input
+          <TextField
+            id="id_sC"
             type="number"
-            placeholder={this.state.sC}
+            defaultValue={this.state.sC}
             name="sC"
-            step="0.00001"
             onChange={this.handleInputChange}
+            label="Shift Constant"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <FormatLineSpacing />
+                </InputAdornment>
+              ),
+            }}
+            inputProps={{ step: 0.00000001 }}
           />
           <hr />
-          <label htmlFor="tileSize">Tile Size</label>
-          <br />
-          <input
+          <TextField
+            id="id_tileSize"
             type="number"
-            placeholder={this.state.tileSize}
+            defaultValue={this.state.tileSize}
             name="tileSize"
-            step="0.00001"
             onChange={this.handleInputChange}
+            label="Tile Size"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <ZoomOutMap />
+                </InputAdornment>
+              ),
+            }}
+            inputProps={{ min: 0, step: 0.1 }}
           />
           <hr />
-          {/* sM selector */}
-          <label htmlFor="sM">Shift Method</label>
-          <br />
-          <select name="sM" onChange={this.handleInputChange} defaultValue="sZ">
-            <option value="sH">Shift By Halves</option>
-            <option value="sZ">Shift By Zeroes</option>
-            <option value="sR">Shift Randomly</option>
-          </select>
-          <br />
+          <InputLabel htmlFor="id_sM">Shift Method</InputLabel>
+          <Functions />{" "}
+          <Select
+            helpertext="Shift Method"
+            id="id_sM"
+            name="sM"
+            defaultValue={this.state.sM}
+            onChange={this.handleInputChange}
+          >
+            <MenuItem value="sH">Shift By Halves</MenuItem>
+            <MenuItem value="sZ">Shift By Zeroes</MenuItem>
+            <MenuItem value="sR">Shift Randomly</MenuItem>
+          </Select>
         </form>
       </div>
     );

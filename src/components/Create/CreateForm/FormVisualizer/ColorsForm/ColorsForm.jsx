@@ -1,5 +1,9 @@
 import React from "react";
 
+import { MenuItem, Select, ListSubheader } from "@material-ui/core";
+
+import { Palette } from "@material-ui/icons";
+
 import axios from "axios";
 
 import "./ColorsForm.css";
@@ -363,93 +367,92 @@ class ColorsForm extends React.Component {
     return (
       <div className="ColorsForms">
         <br />
-        <select
+        <Palette />{" "}
+        <Select
+          helpertext="Color Palettes"
+          id="id_curCol"
           name="curCol"
-          defaultValue={this.state.curState.curCol}
+          defaultValue={this.state.curCol}
           onChange={this.handleColChange}
         >
-          <option value="None">## NONE ##</option>
-          <option value="mc">Manual Colors</option>
-          <option value="None">## CH PALETTES ##</option>
-          <option value="chp">CHP</option>
-          <option value="chp_rnd4">CHP Palette r-.4</option>
-          <option value="chp_s2d8_rd1">CHP s2.8 r.1</option>
-          <option value="None">## MPL PALETTES ##</option>
-          <option value="mplp_GnBu_d">MPLP GnBu</option>
-          <option value="mplp_seismic">MPLP seismic</option>
-          <option value="None">## CP MISCLELLANEOUS ##</option>
-          <option value="cp">Color Palette (CP)</option>
-          <option value="cp_Accent">CP Accent</option>
-          <option value="cp_cubehelix">CP cubehelix</option>
-          <option value="cp_flag">CP flag</option>
-          <option value="cp_Paired">CP Paired</option>
-          <option value="cp_Pastel1">CP Pastel1</option>
-          <option value="cp_Pastel2">CP Pastel2</option>
-          <option value="cp_tab10">CP tab10</option>
-          <option value="cp_tab20">CP tab20</option>
-          <option value="cp_tab20c">CP tab20c</option>
-          <option value="None">## CP RAINBOW ##</option>
-          <option value="cp_gistncar">CP gist_ncar</option>
-          <option value="cp_gistrainbow">CP gist_rainbow</option>
-          <option value="cp_hsv">CP hsv</option>
-          <option value="cp_nipyspectral">CP nipy_spectral</option>
-          <option value="cp_rainbow">CP rainbow</option>
-          <option value="None">## CP 2 COLOR GRADIENTS ##</option>
-          <option value="cp_afmhot">CP afmhot</option>
-          <option value="cp_autumn">CP autumn</option>
-          <option value="cp_binary">CP binary</option>
-          <option value="cp_bone">CP bone</option>
-          <option value="cp_cividis">CP cividis</option>
-          <option value="cp_cool">CP cool</option>
-          <option value="cp_copper">CP copper</option>
-          <option value="cp_hot">CP hot</option>
-          <option value="cp_inferno">CP inferno</option>
-          <option value="cp_magma">CP magma</option>
-          <option value="cp_mako">CP mako</option>
-          <option value="cp_plasma">CP plasma</option>
-          <option value="cp_PuBuGn">CP PuBuGn</option>
-          <option value="cp_Purples">CP Purples</option>
-          <option value="cp_RdPu">CP RdPu</option>
-          <option value="cp_rocket">CP rocket</option>
-          <option value="cp_spring">CP spring</option>
-          <option value="cp_summer">CP summer</option>
-          <option value="cp_viridis">CP viridis</option>
-          <option value="cp_winter">CP winter</option>
-          <option value="cp_Wistia">CP Wistia</option>
-          <option value="cp_YlOrRd">CP YlOrRd</option>
-          <option value="None">## CP 3 COLOR GRADIENTS ##</option>
-          <option value="cp_BrBG">CP BrBG</option>
-          <option value="cp_brg">CP brg</option>
-          <option value="cp_bwr">CP bwr</option>
-          <option value="cp_CMRmap">CP CMRmap</option>
-          <option value="cp_gistearth">CP gistearth</option>
-          <option value="cp_giststern">CP giststern</option>
-          <option value="cp_gnuplot">CP gnuplot</option>
-          <option value="cp_gnuplot2">CP gnuplot2</option>
-          <option value="cp_icefire">CP icefire</option>
-          <option value="cp_ocean">CP ocean</option>
-          <option value="cp_PiYG">CP PiYG</option>
-          <option value="cp_PRGn">CP PRGn</option>
-          <option value="cp_prism">CP prism</option>
-          <option value="cp_RdBu">CP RdBu</option>
-          <option value="cp_RdGy">CP RdGy</option>
-          <option value="cp_RdYlBu">CP RdYlBu</option>
-          <option value="cp_RdYlGn">CP RdYlGn</option>
-          <option value="cp_seismic">CP seismic</option>
-          <option value="cp_Spectral">CP Spectral</option>
-          <option value="cp_terrain">CP terrain</option>
-          <option value="cp_vlag">CP vlag</option>
-        </select>
-
+          <ListSubheader>Cube Helix Palettes</ListSubheader>
+          <MenuItem value="chp">CHP</MenuItem>
+          <MenuItem value="chp_rnd4">CHP Palette r-.4</MenuItem>
+          <MenuItem value="chp_s2d8_rd1">CHP s2.8 r.1</MenuItem>
+          <ListSubheader>MPL Palettes</ListSubheader>
+          <MenuItem value="mplp_GnBu_d">MPLP GnBu</MenuItem>
+          <MenuItem value="mplp_seismic">MPLP seismic</MenuItem>
+          <ListSubheader>CP: Miscellaneous</ListSubheader>
+          <MenuItem value="cp">Color Palette (CP)</MenuItem>
+          <MenuItem value="cp_Accent">CP Accent</MenuItem>
+          <MenuItem value="cp_cubehelix">CP cubehelix</MenuItem>
+          <MenuItem value="cp_flag">CP flag</MenuItem>
+          <MenuItem value="cp_Paired">CP Paired</MenuItem>
+          <MenuItem value="cp_Pastel1">CP Pastel1</MenuItem>
+          <MenuItem value="cp_Pastel2">CP Pastel2</MenuItem>
+          <MenuItem value="cp_tab10">CP tab10</MenuItem>
+          <MenuItem value="cp_tab20">CP tab20</MenuItem>
+          <MenuItem value="cp_tab20c">CP tab20c</MenuItem>
+          <ListSubheader>CP: Rainbow</ListSubheader>
+          <MenuItem value="mc">Manual Colors</MenuItem>
+          <MenuItem value="cp_gistncar">CP gist_ncar</MenuItem>
+          <MenuItem value="cp_gistrainbow">CP gist_rainbow</MenuItem>
+          <MenuItem value="cp_hsv">CP hsv</MenuItem>
+          <MenuItem value="cp_nipyspectral">CP nipy_spectral</MenuItem>
+          <MenuItem value="cp_rainbow">CP rainbow</MenuItem>
+          <ListSubheader>CP: Gradient2</ListSubheader>
+          <MenuItem value="cp_afmhot">CP afmhot</MenuItem>
+          <MenuItem value="cp_autumn">CP autumn</MenuItem>
+          <MenuItem value="cp_binary">CP binary</MenuItem>
+          <MenuItem value="cp_bone">CP bone</MenuItem>
+          <MenuItem value="cp_cividis">CP cividis</MenuItem>
+          <MenuItem value="cp_cool">CP cool</MenuItem>
+          <MenuItem value="cp_copper">CP copper</MenuItem>
+          <MenuItem value="cp_hot">CP hot</MenuItem>
+          <MenuItem value="cp_inferno">CP inferno</MenuItem>
+          <MenuItem value="cp_magma">CP magma</MenuItem>
+          <MenuItem value="cp_mako">CP mako</MenuItem>
+          <MenuItem value="cp_plasma">CP plasma</MenuItem>
+          <MenuItem value="cp_PuBuGn">CP PuBuGn</MenuItem>
+          <MenuItem value="cp_Purples">CP Purples</MenuItem>
+          <MenuItem value="cp_RdPu">CP RdPu</MenuItem>
+          <MenuItem value="cp_rocket">CP rocket</MenuItem>
+          <MenuItem value="cp_spring">CP spring</MenuItem>
+          <MenuItem value="cp_summer">CP summer</MenuItem>
+          <MenuItem value="cp_viridis">CP viridis</MenuItem>
+          <MenuItem value="cp_winter">CP winter</MenuItem>
+          <MenuItem value="cp_Wistia">CP Wistia</MenuItem>
+          <MenuItem value="cp_YlOrRd">CP YlOrRd</MenuItem>
+          <ListSubheader>CP: Gradient3</ListSubheader>
+          <MenuItem value="cp_BrBG">CP BrBG</MenuItem>
+          <MenuItem value="cp_brg">CP brg</MenuItem>
+          <MenuItem value="cp_bwr">CP bwr</MenuItem>
+          <MenuItem value="cp_CMRmap">CP CMRmap</MenuItem>
+          <MenuItem value="cp_gistearth">CP gist_earth</MenuItem>
+          <MenuItem value="cp_giststern">CP gist_stern</MenuItem>
+          <MenuItem value="cp_gnuplot">CP gnuplot</MenuItem>
+          <MenuItem value="cp_gnuplot2">CP gnuplot2</MenuItem>
+          <MenuItem value="cp_icefire">CP icefire</MenuItem>
+          <MenuItem value="cp_ocean">CP ocean</MenuItem>
+          <MenuItem value="cp_PiYG">CP PiYG</MenuItem>
+          <MenuItem value="cp_PRGn">CP PRGn</MenuItem>
+          <MenuItem value="cp_prism">CP prism</MenuItem>
+          <MenuItem value="cp_RdBu">CP RdBu</MenuItem>
+          <MenuItem value="cp_RdGy">CP RdGy</MenuItem>
+          <MenuItem value="cp_RdYlBu">CP RdYlBu</MenuItem>
+          <MenuItem value="cp_RdYlGn">CP RdYlGn</MenuItem>
+          <MenuItem value="cp_seismic">CP seismic</MenuItem>
+          <MenuItem value="cp_Spectral">CP Spectral</MenuItem>
+          <MenuItem value="cp_terrain">CP terrain</MenuItem>
+          <MenuItem value="cp_vlag">CP vlag</MenuItem>
+        </Select>
         <br />
-
         <p>
-          The following is a representation of each type of tile in the tyling
-          and their colors. Although some tiles look repeated, lets note that
-          two different types are isomorphic as their widths and heights are
-          reversed
+          The following is a representation of each type of tile in the tiling
+          and their colors. Although some tiles look repeated, let us note that
+          two different tile types may be isomorphic as their widths and heights
+          are reversed!
         </p>
-
         <canvas
           className="canvasCol"
           style={{ alignSelf: "center" }}

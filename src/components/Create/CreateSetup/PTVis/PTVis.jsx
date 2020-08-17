@@ -14,11 +14,11 @@ export default class PTvis extends React.Component {
       target: "",
       vertices: [],
       canvasSize: {
-        canvasWidth: window.innerWidth,
+        canvasWidth: window.innerWidth * 0.94,
         canvasHeight: window.innerWidth * 0.6,
       },
       center: {
-        x: window.innerWidth / 2,
+        x: (window.innerWidth * 0.94) / 2,
         y: (window.innerWidth * 0.6) / 2,
       },
       idToVal: {},
@@ -30,6 +30,7 @@ export default class PTvis extends React.Component {
     let size = Number(nextProps.size);
     let verts = nextProps.vertices;
     let tiles = nextProps.tiles;
+    let tileSize = nextProps.tileSize;
 
     let colors = nextProps.colors;
 
@@ -140,6 +141,7 @@ export default class PTvis extends React.Component {
         this.state.sourceColor,
         this.state.tileOutlineColor
       );
+      this.drawText(this.canvasUser, "S", this.getCenter(source));
     }
     if (target !== "") {
       this.drawTile(
@@ -148,10 +150,12 @@ export default class PTvis extends React.Component {
         this.state.targetColor,
         this.state.tileOutlineColor
       );
+      this.drawText(this.canvasUser, "T", this.getCenter(target));
     }
     this.setState({
       vertices: verts,
       tiles: tiles,
+      tileSize: tileSize,
       idToCol: idToCol,
       cW: cW,
       aS: aS,
@@ -447,6 +451,18 @@ export default class PTvis extends React.Component {
     window.addEventListener("resize", this.updateWindowDimensions.bind(this));
   }
 
+  drawText(canvasID, text, center) {
+    const ctx = canvasID.getContext("2d");
+    const fontSize = Math.max(2, this.state.tileSize - 5);
+    ctx.font = `${fontSize}px Arial`;
+    ctx.fillStyle = "black";
+    ctx.fillText(
+      text,
+      center.x + this.state.center.x - fontSize / 2 + 2,
+      center.y + this.state.center.y + fontSize / 2 - 1
+    );
+  }
+
   drawTile(
     canvasID,
     verts,
@@ -703,11 +719,11 @@ export default class PTvis extends React.Component {
     this.clearCanvas(this.canvasPT);
     this.clearCanvas(this.canvasUser);
     const canvasSize = {
-      canvasWidth: window.innerWidth,
+      canvasWidth: window.innerWidth * 0.94,
       canvasHeight: window.innerWidth * 0.6,
     };
     const center = {
-      x: window.innerWidth / 2,
+      x: (window.innerWidth * 0.94) / 2,
       y: (window.innerWidth * 0.6) / 2,
     };
     this.setState({ canvasSize: canvasSize, center: center });
