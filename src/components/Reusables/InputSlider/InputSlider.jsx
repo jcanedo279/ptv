@@ -14,6 +14,29 @@ const useStyles = makeStyles({
   },
 });
 
+const marks = [
+  {
+    value: -15,
+    label: "-15",
+  },
+  {
+    value: 1,
+    label: "1",
+  },
+  {
+    value: 20,
+    label: "20",
+  },
+  {
+    value: 30,
+    label: "30",
+  },
+  {
+    value: 45,
+    label: "45",
+  },
+];
+
 export default function InputSlider(props) {
   const classes = useStyles();
   const [value, setValue] = React.useState(1);
@@ -48,6 +71,8 @@ export default function InputSlider(props) {
             max={50}
             onChange={handleSliderChange}
             aria-labelledby="input-slider"
+            valueLabelDisplay="auto"
+            marks={marks}
           />
         </Grid>
         <Grid item>

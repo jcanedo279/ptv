@@ -17,9 +17,9 @@ import Typography from "@material-ui/core/Typography";
 
 import axios from "axios";
 
-import "./SingleDij.css";
+import "./DFS.css";
 
-class SingleDij extends React.Component {
+class DFS extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -128,6 +128,8 @@ class SingleDij extends React.Component {
     let source = this.state.saveDown.source;
     let target = this.state.saveDown.target;
 
+    let priorityQueue = [];
+
     let vertToMinDist = {};
     vertToMinDist[source] = 0;
     let minDistsPrev = {};
@@ -160,6 +162,7 @@ class SingleDij extends React.Component {
     }
 
     let unvisited = new Set(verts);
+    let visited = new Set(source);
 
     let curTvert = source;
 
@@ -202,6 +205,11 @@ class SingleDij extends React.Component {
           continue;
         }
 
+        if (!visited.has(curNVert)) {
+          priorityQueue.push(curNVert);
+          visited.add(curNVert);
+        }
+
         const curDist = vertToMinDist[curTvert] + 1;
 
         if (
@@ -218,52 +226,7 @@ class SingleDij extends React.Component {
         await this.findPath(minDistsPrev);
       }
 
-      let curMin = "hello";
-      let curMinDist = Number.POSITIVE_INFINITY;
-      for (const [vert, minDist] of Object.entries(vertToMinDist)) {
-        let newVert = vert.split(",");
-        newVert = newVert.map(Number);
-        const finalVert = [
-          [newVert[0], newVert[1]],
-          [newVert[2], newVert[3]],
-          [newVert[4], newVert[5]],
-          [newVert[6], newVert[7]],
-        ];
-        const nvdist = this.genVDist(finalVert);
-        const nvphase = this.genPhase(finalVert);
-        const idStr = idTotInd[`${nvdist} ${nvphase}`];
-        let id = idStr.split(" ");
-        id = id.map(Number);
-        let nvVert = tiles[id[0]][id[2]][id[1]][id[3]];
-
-        if (this.state.Astar) {
-          let targetBias = this.state.scoring.targetBias;
-          let sourceBias = this.state.scoring.sourceBias;
-
-          let nvCenter = this.getCenter(nvVert);
-          let targetCenter = this.getCenter(this.state.saveDown.target);
-
-          let interCenterDist = this.findInterCenterDist(
-            nvCenter,
-            targetCenter
-          );
-
-          let score = sourceBias * minDist + targetBias * interCenterDist;
-
-          if (score < curMinDist && unvisited.has(nvVert)) {
-            curMinDist = score;
-            curMin = nvVert;
-          }
-        } else {
-          if (minDist < curMinDist && unvisited.has(nvVert)) {
-            curMinDist = minDist;
-            curMin = nvVert;
-          }
-        }
-      }
-
-      if (curMin === "hello") {
-        // The algorithm is stuck
+      if (priorityQueue.length === 0) {
         this.setState({ algMutexInUse: false });
         return;
       }
@@ -274,6 +237,8 @@ class SingleDij extends React.Component {
         "gold",
         this.state.invalidColor
       );
+
+      let curMin = priorityQueue.pop();
 
       curGen += 1;
       curTvert = curMin;
@@ -548,11 +513,6 @@ class SingleDij extends React.Component {
   handleInputChange(event) {
     console.log(`${event.target.name} value changed to`, event.target.value);
     this.setState({ [event.target.name]: event.target.value });
-  }
-
-  handleAstarClick() {
-    console.log(`Astar value changed to`, !this.state.Astar);
-    this.setState({ Astar: !this.state.Astar });
   }
 
   handleSubmit(event) {
@@ -841,61 +801,6 @@ class SingleDij extends React.Component {
           </Select>
           <br />
           <br />
-          <FormControlLabel
-            value="Astar"
-            control={<Checkbox color="primary" />}
-            label="A* Approximation"
-            labelPlacement="start"
-            onClick={this.handleAstarClick.bind(this)}
-          />
-          <br />
-          <div style={{ position: "relative", alignContent: "center" }}>
-            <Grid
-              style={{ marginLeft: "200px" }}
-              container
-              spacing={2}
-              alignItems="center"
-            >
-              <Typography id="id_sourceSlider" gutterBottom>
-                Source Bias
-              </Typography>
-              <br />
-              <Grid item xs>
-                <InputSlider
-                  id="id_sourceSlider"
-                  saveBiasUp={(sourceBias) => {
-                    this.setState({
-                      scoring: {
-                        sourceBias: sourceBias,
-                        targetBias: this.state.scoring.targetBias,
-                      },
-                    });
-                  }}
-                />
-              </Grid>
-              {/*  */}
-              <br />
-              {/*  */}
-              <Typography id="id_targetSlider" gutterBottom>
-                Target Bias
-              </Typography>
-              <br />
-              <Grid item xs>
-                <InputSlider
-                  id="id_targetSlider"
-                  saveBiasUp={(targetBias) => {
-                    this.setState({
-                      scoring: {
-                        sourceBias: this.state.scoring.sourceBias,
-                        targetBias: targetBias,
-                      },
-                    });
-                  }}
-                />
-              </Grid>
-            </Grid>
-          </div>
-          <br />
           <Button variant="contained" type="submit" startIcon={<Replay />}>
             Re-Animate
           </Button>
@@ -941,4 +846,4 @@ class SingleDij extends React.Component {
   }
 }
 
-export default SingleDij;
+export default DFS;

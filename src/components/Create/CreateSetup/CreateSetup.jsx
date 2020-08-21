@@ -17,6 +17,7 @@ class CreateSetup extends React.Component {
       sV: "",
       source: "",
       target: "",
+      kTSet: new Set(),
       verts: [],
       tile: {},
       idToVal: {},
@@ -25,6 +26,7 @@ class CreateSetup extends React.Component {
       cl: false,
       aS: false,
       aT: false,
+      kT: false,
       curOutMode: "",
     };
   }
@@ -83,6 +85,10 @@ class CreateSetup extends React.Component {
     this.setState({ aT });
   }
 
+  setKT(kT) {
+    this.setState({ kT });
+  }
+
   resetCL() {
     this.setState({ cl: false });
   }
@@ -98,13 +104,19 @@ class CreateSetup extends React.Component {
 
   setSource(source) {
     this.setState({ source }, () => {
-      this.props.setSingleDijData(source, this.state.target);
+      this.props.setSourceTargetData(source, this.state.target);
     });
   }
 
   setTarget(target) {
     this.setState({ target }, () => {
-      this.props.setSingleDijData(this.state.source, target);
+      this.props.setSourceTargetData(this.state.source, target);
+    });
+  }
+
+  setKTSet(kT) {
+    this.setState({ kT }, () => {
+      this.props.setkTSet(kT);
     });
   }
 
@@ -114,14 +126,54 @@ class CreateSetup extends React.Component {
       return;
     }
     // If the source and target are set, we clear here so we can remake it from somewhere else
-    this.props.setSingleDij("", "");
+    this.props.setSingleDij();
     this.setState({ curOutMode: "singleDij", source: "", target: "" }, () => {
       this.props.setSingleDij();
     });
   }
 
-  setSingleDijData(source, target) {
-    this.props.setSingleDijData(source, target);
+  setBFS() {
+    // If the source and target are not set, we return to prevent BFS without a source and target
+    if (this.state.source === "" || this.state.target === "") {
+      return;
+    }
+    // If the source and target are set, we clear here so we can remake it from somewhere else
+    this.props.setBFS();
+    this.setState({ curOutMode: "BFS", source: "", target: "" }, () => {
+      this.props.setBFS();
+    });
+  }
+
+  setDFS() {
+    // If the source and target are not set, we return to prevent DFS without a source and target
+    if (this.state.source === "" || this.state.target === "") {
+      return;
+    }
+    // If the source and target are set, we clear here so we can remake it from somewhere else
+    this.props.setDFS();
+    this.setState({ curOutMode: "DFS", source: "", target: "" }, () => {
+      this.props.setDFS();
+    });
+  }
+
+  setK2() {
+    // If the source and target are not set, we return to prevent DFS without a source and target
+    if (
+      this.state.source === "" ||
+      this.state.target === "" ||
+      this.state.kTSet === new Set()
+    ) {
+      return;
+    }
+    // If the source and target are set, we clear here so we can remake it from somewhere else
+    this.props.setK2();
+    this.setState({ curOutMode: "K2", source: "", target: "" }, () => {
+      this.props.setK2();
+    });
+  }
+
+  setSourceTargetData(source, target) {
+    this.props.setSourceTargetData(source, target);
   }
 
   render() {
@@ -133,6 +185,7 @@ class CreateSetup extends React.Component {
           setCL={this.setCL.bind(this)}
           setAS={this.setAS.bind(this)}
           setAT={this.setAT.bind(this)}
+          setKT={this.setKT.bind(this)}
         />
 
         <PTVis
@@ -146,20 +199,28 @@ class CreateSetup extends React.Component {
           cW={this.state.cW}
           aS={this.state.aS}
           aT={this.state.aT}
+          kT={this.state.kT}
           cl={this.state.cl}
           idToVal={this.state.idToVal}
           idToCol={this.state.idToCol}
           source={this.state.source}
           target={this.state.target}
+          kTSet={this.state.kTSet}
           //
           setidToVal={this.setidToVal.bind(this)}
           setidToCol={this.setidToCol.bind(this)}
           setSource={this.setSource.bind(this)}
           setTarget={this.setTarget.bind(this)}
+          setKTSet={this.setKTSet.bind(this)}
           resetCL={this.resetCL.bind(this)}
         />
 
-        <PTSubmit setSingleDij={this.setSingleDij.bind(this)} />
+        <PTSubmit
+          setSingleDij={this.setSingleDij.bind(this)}
+          setBFS={this.setBFS.bind(this)}
+          setDFS={this.setDFS.bind(this)}
+          setK2={this.setK2.bind(this)}
+        />
       </div>
     );
   }

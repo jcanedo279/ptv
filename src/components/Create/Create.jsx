@@ -20,6 +20,7 @@ class Create extends React.Component {
       sV: "",
       source: "",
       target: "",
+      kTSet: new Set(),
       idToVal: {},
       idToCol: {},
       verts: [],
@@ -40,18 +41,45 @@ class Create extends React.Component {
     this.setState({ curOutMode: "singleDij" });
   }
 
-  setSingleDijData(source, target) {
+  setBFS() {
+    this.setState({ curOutMode: "BFS" });
+  }
+
+  setDFS() {
+    this.setState({ curOutMode: "DFS" });
+  }
+
+  setK2() {
+    this.setState({ curOutMode: "K2" });
+  }
+
+  clearCurOutMode() {
+    this.setState({ curOutMode: " " });
+  }
+
+  setSourceTargetData(source, target) {
     this.setState({ source, target });
+  }
+
+  setkTSet(kTSet) {
+    this.setState({ kTSet });
   }
 
   resetDijOut() {
     this.setState({ curOutMode: "", source: "", target: "" });
   }
 
+  clearWalls() {
+    this.setState({ idToVal: {} });
+  }
+
   render() {
     return (
       <div className="Create" ref={(createDiv) => (this.createDiv = createDiv)}>
         <CreateForm
+          setSingleDij={this.setSingleDij.bind(this)}
+          clearCurOutMode={this.clearCurOutMode.bind(this)}
+          clearWalls={this.clearWalls.bind(this)}
           resetDijOut={this.resetDijOut.bind(this)}
           tileSize={this.state.tileSize}
           saveUp={(s) => {
@@ -110,10 +138,16 @@ class Create extends React.Component {
           ttm={this.state.ttm}
           source={this.state.source}
           target={this.state.target}
+          // Set click data
           setTS={this.setTS.bind(this)}
           setidToVal={this.setidToVal.bind(this)}
+          setSourceTargetData={this.setSourceTargetData.bind(this)}
+          setkTSet={this.setkTSet.bind(this)}
+          // Search algorithms
           setSingleDij={this.setSingleDij.bind(this)}
-          setSingleDijData={this.setSingleDijData.bind(this)}
+          setBFS={this.setBFS.bind(this)}
+          setDFS={this.setDFS.bind(this)}
+          setK2={this.setK2.bind(this)}
         />
 
         <br />

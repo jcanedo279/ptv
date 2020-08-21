@@ -1,7 +1,13 @@
 import React from "react";
 
-import { Button } from "@material-ui/core";
-import { Layers, Flag, LayersClear, TripOrigin } from "@material-ui/icons";
+import { Button, ButtonGroup } from "@material-ui/core";
+import {
+  Layers,
+  Flag,
+  LayersClear,
+  TripOrigin,
+  ScatterPlot,
+} from "@material-ui/icons";
 
 import "./PTBar.css";
 
@@ -13,12 +19,14 @@ class PTBar extends React.Component {
       cl: false,
       aS: false,
       aT: false,
+      kT: false,
     };
 
     this.cwRef = React.createRef();
     this.clRef = React.createRef();
     this.addSourceRef = React.createRef();
     this.addTargetRef = React.createRef();
+    this.addKTRef = React.createRef();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -32,6 +40,9 @@ class PTBar extends React.Component {
     }
     if (this.state.aT) {
       this.onAddTarget();
+    }
+    if (this.state.kT) {
+      this.onAddKT();
     }
     if (this.state.cW === false) {
       this.cwRef.current.classList.remove("w3-white");
@@ -57,6 +68,9 @@ class PTBar extends React.Component {
     if (this.state.aT) {
       this.onAddTarget();
     }
+    if (this.state.kT) {
+      this.onAddKT();
+    }
     if (this.state.aS === false) {
       this.addSourceRef.current.classList.remove("w3-white");
       this.addSourceRef.current.classList.add("w3-grey");
@@ -76,6 +90,9 @@ class PTBar extends React.Component {
     if (this.state.aS) {
       this.onAddSource();
     }
+    if (this.state.kT) {
+      this.onAddKT();
+    }
     if (this.state.aT === false) {
       this.addTargetRef.current.classList.remove("w3-white");
       this.addTargetRef.current.classList.add("w3-grey");
@@ -88,11 +105,33 @@ class PTBar extends React.Component {
     this.props.setAT(!this.state.aT);
   }
 
+  onAddKT() {
+    if (this.state.cW) {
+      this.onCW();
+    }
+    if (this.state.aS) {
+      this.onAddSource();
+    }
+    if (this.state.aT) {
+      this.onAddTarget();
+    }
+    if (this.state.kT === false) {
+      this.addKTRef.current.classList.remove("w3-white");
+      this.addKTRef.current.classList.add("w3-grey");
+    }
+    if (this.state.kT === true) {
+      this.addKTRef.current.classList.remove("w3-grey");
+      this.addKTRef.current.classList.add("w3-white");
+    }
+    this.setState({ kT: !this.state.kT });
+    this.props.setKT(!this.state.kT);
+  }
+
   render() {
     return (
       <div className="w3-bar w3-container w3-teal">
         <br />
-        <div className="w3-bar-item itemDiv">
+        <ButtonGroup>
           <Button
             ref={this.cwRef}
             name="cW"
@@ -103,9 +142,7 @@ class PTBar extends React.Component {
           >
             Click Walls
           </Button>
-        </div>
 
-        <div className="w3-bar-item itemDiv">
           <Button
             ref={this.clRef}
             name="cl"
@@ -116,9 +153,7 @@ class PTBar extends React.Component {
           >
             Clear Walls
           </Button>
-        </div>
 
-        <div className="w3-bar-item itemDiv">
           <Button
             ref={this.addSourceRef}
             name="addSource"
@@ -129,9 +164,7 @@ class PTBar extends React.Component {
           >
             Add Source
           </Button>
-        </div>
 
-        <div className="w3-bar-item itemDiv">
           <Button
             ref={this.addTargetRef}
             name="addTarget"
@@ -142,7 +175,18 @@ class PTBar extends React.Component {
           >
             Add Target
           </Button>
-        </div>
+
+          <Button
+            ref={this.addKTRef}
+            name="addKT"
+            variant="contained"
+            onClick={this.onAddKT.bind(this)}
+            size="large"
+            startIcon={<ScatterPlot />}
+          >
+            Add K Targets
+          </Button>
+        </ButtonGroup>
       </div>
     );
   }

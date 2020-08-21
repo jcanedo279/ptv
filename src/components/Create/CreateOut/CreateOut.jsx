@@ -1,6 +1,9 @@
 import React from "react";
 
 import SingleDij from "./SingleDij/SingleDij";
+import BFS from "./BFS/BFS";
+import DFS from "./DFS/DFS";
+import K2 from "./K2/K2";
 
 class CreateOut extends React.Component {
   constructor(props) {
@@ -44,11 +47,51 @@ class CreateOut extends React.Component {
     );
   }
 
+  BFS() {
+    return (
+      <BFS
+        saveDown={this.state.saveDown}
+        reAnimate={() => {
+          this.setState({ curOutMode: "BFS" });
+        }}
+      />
+    );
+  }
+
+  DFS() {
+    return (
+      <DFS
+        saveDown={this.state.saveDown}
+        reAnimate={() => {
+          this.setState({ curOutMode: "DFS" });
+        }}
+      />
+    );
+  }
+
+  K2() {
+    return (
+      <K2
+        saveDown={this.state.saveDown}
+        reAnimate={() => {
+          this.setState({ curOutMode: "K2" });
+        }}
+      />
+    );
+  }
+
   render() {
-    if (this.state.curOutMode === "") {
+    const acceptanceModes = new Set(["", " "]);
+    if (acceptanceModes.has(this.state.curOutMode)) {
       return this.noOut();
     } else if (this.state.curOutMode === "singleDij") {
       return this.singleDij();
+    } else if (this.state.curOutMode === "BFS") {
+      return this.BFS();
+    } else if (this.state.curOutMode === "DFS") {
+      return this.DFS();
+    } else if (this.state.curOutMode === "K2") {
+      return this.K2();
     }
   }
 }

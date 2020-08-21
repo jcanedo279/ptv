@@ -12,6 +12,7 @@ export default class PTvis extends React.Component {
       targetColor: `rgb(${255}, ${255}, ${255})`,
       source: "",
       target: "",
+      kTSet: new Set(),
       vertices: [],
       canvasSize: {
         canvasWidth: window.innerWidth * 0.94,
@@ -51,10 +52,12 @@ export default class PTvis extends React.Component {
     let cl = nextProps.cl;
     let aS = nextProps.aS;
     let aT = nextProps.aT;
+    let kT = nextProps.kT;
     let lITV = nextProps.idToVal;
 
     let source = nextProps.source;
     let target = nextProps.target;
+    let kTSet = nextProps.kTSet;
 
     if (cl) {
       lITV = {};
@@ -152,6 +155,19 @@ export default class PTvis extends React.Component {
       );
       this.drawText(this.canvasUser, "T", this.getCenter(target));
     }
+    if (kTSet.size > 0) {
+      const kTArr = Array.from(kTSet);
+      for (let k = 0; k < kTArr.length; k++) {
+        const tVert = kTArr[k];
+        this.drawTile(
+          this.canvasUser,
+          tVert,
+          this.state.targetColor,
+          this.state.tileOutlineColor
+        );
+        this.drawText(this.canvasUser, "K", this.getCenter(tVert));
+      }
+    }
     this.setState({
       vertices: verts,
       tiles: tiles,
@@ -160,8 +176,10 @@ export default class PTvis extends React.Component {
       cW: cW,
       aS: aS,
       aT: aT,
+      kT: kT,
       source: source,
       target: target,
+      kTSet: kTSet,
     });
   }
 
@@ -592,6 +610,41 @@ export default class PTvis extends React.Component {
     }
   };
 
+  kTClick = (e) => {
+    console.log("yello ,", this.state.kTSet);
+    const cord = this.getMouseCordInCanvas(e);
+    const clickVert = this.binSearchVerts(cord);
+
+    if (clickVert !== undefined) {
+      const dist = this.genVDist(clickVert);
+      const phase = this.genPhase(clickVert);
+      const id = `${dist} ${phase}`;
+
+      const originalColor = this.state.idToCol[id];
+
+      let kTSet = this.state.kTSet;
+
+      if (kTSet.has(clickVert)) {
+        // Unclick by drawing ttm colored tile and removing from clicked set
+        this.drawTile(this.canvasUser, clickVert, originalColor);
+        kTSet.delete(clickVert);
+        this.setState({ kTSet });
+        this.props.setKTSet(kTSet);
+      } else {
+        // Click by drawing black tile and adding to clicked set
+        this.drawTile(
+          this.canvasUser,
+          clickVert,
+          this.state.kTColor,
+          this.state.tileOutlineColor
+        );
+        kTSet.add(clickVert);
+        this.setState({ kTSet });
+        this.props.setKTSet(kTSet);
+      }
+    }
+  };
+
   dragClick = (e) => {
     const cord = this.getMouseCordInCanvas(e);
     const clickVert = this.binSearchVerts(cord);
@@ -670,12 +723,15 @@ export default class PTvis extends React.Component {
           mouseDown: true,
           mouseDownCord: this.getMouseCordInCanvas(e),
         });
+        console.log("mouseDownState ,", this.state);
         if (this.state.aS) {
           this.aSClick(e);
         } else if (this.state.aT) {
           this.aTClick(e);
         } else if (this.state.cW) {
           this.singleClick(e);
+        } else if (this.state.kT) {
+          this.kTClick(e);
         }
       }
     } else {

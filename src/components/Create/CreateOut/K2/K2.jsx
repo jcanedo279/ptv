@@ -17,9 +17,9 @@ import Typography from "@material-ui/core/Typography";
 
 import axios from "axios";
 
-import "./SingleDij.css";
+import "./K2.css";
 
-class SingleDij extends React.Component {
+class K2 extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -121,25 +121,12 @@ class SingleDij extends React.Component {
     let idTotInd = tilingNeighbourhoodData.idTotInd;
 
     const idToVal = this.state.saveDown.idToVal;
-    let idToCol = this.state.saveDown.idToCol;
-
-    console.log("idToVal ,", idToVal);
-
-    let source = this.state.saveDown.source;
-    let target = this.state.saveDown.target;
-
-    let vertToMinDist = {};
-    vertToMinDist[source] = 0;
-    let minDistsPrev = {};
-    minDistsPrev[source] = "Source";
-
-    let tiles = this.state.saveDown.tiles;
 
     let verts = [];
 
     let dim = this.state.saveDown.dim;
     let size = this.state.saveDown.size;
-
+    let tiles = this.state.saveDown.tiles;
     for (let r = 0; r < dim - 1; r++) {
       for (let s = 0; s < dim - r - 1; s++) {
         for (let a = 0; a < 2 * size + 1; a++) {
@@ -159,125 +146,289 @@ class SingleDij extends React.Component {
       }
     }
 
-    let unvisited = new Set(verts);
+    let vertToMinDist = {};
+    let minDistsPrev = {};
 
-    let curTvert = source;
+    let paths = new Set();
 
-    let curGen = 0;
+    let source = this.state.saveDown.source;
+    let target = this.state.saveDown.target;
+    let kTSet = this.state.saveDown.kTSet;
 
     let printPath = false;
 
-    this.clearCanvas(this.canvasSingleDij);
-    this.displayGrid();
-    this.displayInvalid(idTotInd);
-    // this.displayMinDist(vertToMinDist);
+    let mstPairs = this.genMstPairs(source, target, kTSet);
+    console.log("mstPairs ,", mstPairs);
+    for (let mstInd = 0; mstInd < mstPairs.length; mstInd++) {
+      const curSourceTarget = mstPairs[mstInd];
+      const curSource = curSourceTarget[0];
+      const curTarget = curSourceTarget[1];
 
-    // LOOP
-    while (unvisited.size > 0 && curGen < this.state.maxGen) {
-      unvisited.delete(curTvert);
+      vertToMinDist = {};
+      vertToMinDist[curSource] = 0;
+      minDistsPrev = {};
+      minDistsPrev[curSource] = "Source";
 
-      const dist = this.genVDist(curTvert);
-      const phase = this.genPhase(curTvert);
-      const curid = `${dist} ${phase}`;
-      const curTind = idTotInd[curid];
-      // resplit id with commas
-      const curTflag = curTind.split(" ").join(",");
-      // get curr neighbourhood with flag and iterate over it
-      const curNeighbourhood = tIndToNeighbourhood[curTflag];
-      const curNLen = curNeighbourhood.length;
+      let unvisited = new Set(verts);
 
-      for (let nInd = 0; nInd < curNLen; nInd++) {
-        const nTind = curNeighbourhood[nInd].map(Number);
-        const curNVert = tiles[nTind[0]][nTind[2]][nTind[1]][nTind[3]];
+      let curTvert = curSource;
 
-        if (curNVert == target) {
-          printPath = true;
+      let curGen = 0;
+
+      printPath = false;
+
+      this.clearCanvas(this.canvasSingleDij);
+      this.displayGrid();
+      this.displayInvalid(idTotInd);
+
+      const kTArr = Array.from(kTSet);
+
+      // LOOP
+      while (unvisited.size > 0 && curGen < this.state.maxGen) {
+        console.log(printPath);
+        unvisited.delete(curTvert);
+
+        const dist = this.genVDist(curTvert);
+        const phase = this.genPhase(curTvert);
+        const curid = `${dist} ${phase}`;
+        const curTind = idTotInd[curid];
+        // resplit id with commas
+        const curTflag = curTind.split(" ").join(",");
+        // get curr neighbourhood with flag and iterate over it
+        const curNeighbourhood = tIndToNeighbourhood[curTflag];
+        const curNLen = curNeighbourhood.length;
+
+        for (let nInd = 0; nInd < curNLen; nInd++) {
+          const nTind = curNeighbourhood[nInd].map(Number);
+          const curNVert = tiles[nTind[0]][nTind[2]][nTind[1]][nTind[3]];
+
+          if (curNVert == curTarget) {
+            printPath = true;
+          }
+
+          const curNdist = this.genVDist(curNVert);
+          const curNphase = this.genPhase(curNVert);
+          const idStr = `${curNdist} ${curNphase}`;
+
+          if (idToVal[idStr] === -1) {
+            continue;
+          }
+
+          const curDist = vertToMinDist[curTvert] + 1;
+
+          if (
+            vertToMinDist[curNVert] === undefined ||
+            curDist < vertToMinDist[curNVert]
+          ) {
+            vertToMinDist[curNVert] = curDist;
+            minDistsPrev[curNVert] = curTvert;
+          }
         }
 
-        const curNdist = this.genVDist(curNVert);
-        const curNphase = this.genPhase(curNVert);
-        const idStr = `${curNdist} ${curNphase}`;
-
-        if (idToVal[idStr] === -1) {
-          continue;
+        await this.displayMinDist(vertToMinDist);
+        if (printPath) {
+          await this.findPath(minDistsPrev, curSource, curTarget, true);
         }
 
-        const curDist = vertToMinDist[curTvert] + 1;
+        let curMin = "hello";
+        let curMinDist = Number.POSITIVE_INFINITY;
+        for (const [vert, minDist] of Object.entries(vertToMinDist)) {
+          let newVert = vert.split(",");
+          newVert = newVert.map(Number);
+          const finalVert = [
+            [newVert[0], newVert[1]],
+            [newVert[2], newVert[3]],
+            [newVert[4], newVert[5]],
+            [newVert[6], newVert[7]],
+          ];
+          const nvdist = this.genVDist(finalVert);
+          const nvphase = this.genPhase(finalVert);
+          const idStr = idTotInd[`${nvdist} ${nvphase}`];
+          let id = idStr.split(" ");
+          id = id.map(Number);
+          let nvVert = tiles[id[0]][id[2]][id[1]][id[3]];
 
-        if (
-          vertToMinDist[curNVert] === undefined ||
-          curDist < vertToMinDist[curNVert]
-        ) {
-          vertToMinDist[curNVert] = curDist;
-          minDistsPrev[curNVert] = curTvert;
+          if (this.state.Astar) {
+            let targetBias = this.state.scoring.targetBias;
+            let sourceBias = this.state.scoring.sourceBias;
+
+            let nvCenter = this.getCenter(nvVert);
+            let targetCenter = this.getCenter(curTarget);
+
+            let interCenterDist = this.findInterCenterDist(
+              nvCenter,
+              targetCenter
+            );
+
+            let score = sourceBias * minDist + targetBias * interCenterDist;
+
+            if (score < curMinDist && unvisited.has(nvVert)) {
+              curMinDist = score;
+              curMin = nvVert;
+            }
+          } else {
+            if (minDist < curMinDist && unvisited.has(nvVert)) {
+              curMinDist = minDist;
+              curMin = nvVert;
+            }
+          }
         }
-      }
 
-      await this.displayMinDist(vertToMinDist);
-      if (printPath) {
-        await this.findPath(minDistsPrev);
-      }
-
-      let curMin = "hello";
-      let curMinDist = Number.POSITIVE_INFINITY;
-      for (const [vert, minDist] of Object.entries(vertToMinDist)) {
-        let newVert = vert.split(",");
-        newVert = newVert.map(Number);
-        const finalVert = [
-          [newVert[0], newVert[1]],
-          [newVert[2], newVert[3]],
-          [newVert[4], newVert[5]],
-          [newVert[6], newVert[7]],
-        ];
-        const nvdist = this.genVDist(finalVert);
-        const nvphase = this.genPhase(finalVert);
-        const idStr = idTotInd[`${nvdist} ${nvphase}`];
-        let id = idStr.split(" ");
-        id = id.map(Number);
-        let nvVert = tiles[id[0]][id[2]][id[1]][id[3]];
-
-        if (this.state.Astar) {
-          let targetBias = this.state.scoring.targetBias;
-          let sourceBias = this.state.scoring.sourceBias;
-
-          let nvCenter = this.getCenter(nvVert);
-          let targetCenter = this.getCenter(this.state.saveDown.target);
-
-          let interCenterDist = this.findInterCenterDist(
-            nvCenter,
-            targetCenter
+        if (curMin === "hello") {
+          // The algorithm is stuck
+          this.setState({ algMutexInUse: false });
+          return;
+        }
+        // Display Current tile
+        this.drawTile(
+          this.canvasSingleDij,
+          curTvert,
+          "gold",
+          this.state.invalidColor
+        );
+        // Display T/S targets
+        this.drawTile(
+          this.canvasSingleDij,
+          this.state.saveDown.source,
+          "gold",
+          this.state.saveDown.invalidColor
+        );
+        this.drawTile(
+          this.canvasSingleDij,
+          this.state.saveDown.target,
+          "gold",
+          this.state.saveDown.invalidColor
+        );
+        this.drawText(
+          this.canvasSingleDij,
+          "S",
+          this.getCenter(this.state.saveDown.source)
+        );
+        this.drawText(
+          this.canvasSingleDij,
+          "T",
+          this.getCenter(this.state.saveDown.target)
+        );
+        // Display K targets
+        for (let k = 0; k < kTArr.length; k++) {
+          const tVert = kTArr[k];
+          this.drawTile(
+            this.canvasSingleDij,
+            tVert,
+            this.state.targetColor,
+            this.state.tileOutlineColor
           );
-
-          let score = sourceBias * minDist + targetBias * interCenterDist;
-
-          if (score < curMinDist && unvisited.has(nvVert)) {
-            curMinDist = score;
-            curMin = nvVert;
-          }
-        } else {
-          if (minDist < curMinDist && unvisited.has(nvVert)) {
-            curMinDist = minDist;
-            curMin = nvVert;
-          }
+          this.drawText(this.canvasSingleDij, "K", this.getCenter(tVert));
         }
+        // Display current source and target
+        this.drawTile(
+          this.canvasSingleDij,
+          curSource,
+          "gold",
+          this.state.saveDown.invalidColor
+        );
+        this.drawTile(
+          this.canvasSingleDij,
+          curTarget,
+          "gold",
+          this.state.saveDown.invalidColor
+        );
+        this.drawText(
+          this.canvasSingleDij,
+          "S",
+          this.getCenter(curSource),
+          "red"
+        );
+        this.drawText(
+          this.canvasSingleDij,
+          "T",
+          this.getCenter(curTarget),
+          "red"
+        );
+        // Display all found paths
+        const pathsArray = Array.from(paths);
+        for (let p = 0; p < pathsArray.length; p++) {
+          const dispPath = pathsArray[p];
+          this.displayPath(dispPath);
+        }
+
+        curGen += 1;
+        curTvert = curMin;
       }
 
-      if (curMin === "hello") {
-        // The algorithm is stuck
-        this.setState({ algMutexInUse: false });
-        return;
+      if (printPath) {
+        const curPath = await this.findPath(minDistsPrev, curSource, curTarget);
+        paths.add(curPath);
       }
 
+      // Display Current tile
       this.drawTile(
         this.canvasSingleDij,
         curTvert,
         "gold",
         this.state.invalidColor
       );
-
-      curGen += 1;
-      curTvert = curMin;
+      // Display T/S targets
+      this.drawTile(
+        this.canvasSingleDij,
+        this.state.saveDown.source,
+        "gold",
+        this.state.saveDown.invalidColor
+      );
+      this.drawTile(
+        this.canvasSingleDij,
+        this.state.saveDown.target,
+        "gold",
+        this.state.saveDown.invalidColor
+      );
+      this.drawText(
+        this.canvasSingleDij,
+        "S",
+        this.getCenter(this.state.saveDown.source)
+      );
+      this.drawText(
+        this.canvasSingleDij,
+        "T",
+        this.getCenter(this.state.saveDown.target)
+      );
+      // Display K targets
+      for (let k = 0; k < kTArr.length; k++) {
+        const tVert = kTArr[k];
+        this.drawTile(
+          this.canvasSingleDij,
+          tVert,
+          this.state.targetColor,
+          this.state.tileOutlineColor
+        );
+        this.drawText(this.canvasSingleDij, "K", this.getCenter(tVert));
+      }
+      // Display current source and target
+      this.drawTile(
+        this.canvasSingleDij,
+        curSource,
+        "gold",
+        this.state.saveDown.invalidColor
+      );
+      this.drawTile(
+        this.canvasSingleDij,
+        curTarget,
+        "gold",
+        this.state.saveDown.invalidColor
+      );
+      this.drawText(
+        this.canvasSingleDij,
+        "S",
+        this.getCenter(curSource),
+        "red"
+      );
+      this.drawText(
+        this.canvasSingleDij,
+        "T",
+        this.getCenter(curTarget),
+        "red"
+      );
     }
+
     this.setState({ algMutexInUse: false });
   }
 
@@ -305,28 +456,94 @@ class SingleDij extends React.Component {
       ];
       this.drawTile(this.canvasSingleDij, newV, distCol, distCol);
     }
-    this.drawTile(
-      this.canvasSingleDij,
-      this.state.saveDown.source,
-      "gold",
-      this.state.saveDown.invalidColor
-    );
-    this.drawText(
-      this.canvasSingleDij,
-      "S",
-      this.getCenter(this.state.saveDown.source)
-    );
-    this.drawTile(
-      this.canvasSingleDij,
-      this.state.saveDown.target,
-      "gold",
-      this.state.saveDown.invalidColor
-    );
-    this.drawText(
-      this.canvasSingleDij,
-      "T",
-      this.getCenter(this.state.saveDown.target)
-    );
+  }
+
+  genMstPairs(source, target, kTSet) {
+    let targets = new Set();
+    targets.add(source);
+    targets.add(target);
+    let kTArr = Array.from(kTSet);
+    for (let i = 0; i < kTArr.length; i++) {
+      targets.add(kTArr[i]);
+    }
+
+    let targetsList = Array.from(targets);
+
+    let G = [];
+    for (let gx = 0; gx < targetsList.length; gx++) {
+      let curGRow = [];
+      for (let gy = 0; gy < targetsList.length; gy++) {
+        let c1 = this.getCenter(targetsList[gx]);
+        let c2 = this.getCenter(targetsList[gy]);
+
+        let dist = this.findInterCenterDist(c1, c2);
+
+        curGRow.push(dist);
+      }
+      G.push(curGRow);
+    }
+
+    let mst = this.findMST(G);
+
+    console.log("mst ,", mst);
+
+    let orderedPairs = [];
+
+    let mstArray = Array.from(mst);
+    console.log("mstArray ,", mstArray);
+    for (let ms = 0; ms < mstArray.length; ms++) {
+      const mstEdge = mstArray[ms];
+      orderedPairs.push([targetsList[mstEdge[0]], targetsList[mstEdge[1]]]);
+    }
+    return orderedPairs;
+  }
+
+  findMST(G) {
+    const n = G.length;
+    const m = n - 1;
+
+    let priorityQueue = [];
+    let mst = new Set();
+
+    let numEdges = 0;
+    let curVertex = 0;
+    let visited = new Set();
+
+    while (numEdges < m) {
+      for (let i = 0; i < n; i++) {
+        if (G[curVertex][i] != 0) {
+          priorityQueue.push([curVertex, i, G[curVertex][i]]);
+        }
+      }
+
+      const minE = this.minEdge(priorityQueue, visited);
+
+      visited.add(`${minE[0]} ${minE[1]}`);
+      mst.add(minE);
+      numEdges += 1;
+
+      var index = priorityQueue.indexOf(minE);
+      priorityQueue.splice(index, 1);
+
+      curVertex = minE[1];
+    }
+    return mst;
+  }
+
+  minEdge(priorityQueue, visited) {
+    if (priorityQueue.length == 0) return null;
+    let minVertex = priorityQueue[0];
+    for (let cV = 1; cV < priorityQueue.length; cV++) {
+      const curVertex = priorityQueue[cV];
+      if (
+        curVertex[2] < minVertex[2] &&
+        !visited.has(`${curVertex[0]} ${curVertex[1]}`) &&
+        !visited.has(`${curVertex[1]} ${curVertex[0]}`)
+      ) {
+        minVertex = curVertex;
+      }
+    }
+    return minVertex;
   }
 
   // Find the distance between two centers
@@ -398,33 +615,36 @@ class SingleDij extends React.Component {
     }
   }
 
-  async findPath(minDistPrev) {
-    let curT = this.state.saveDown.target;
-    console.log(curT);
+  async findPath(minDistPrev, curSource, curTarget, final = false) {
+    let curT = curTarget;
 
     let path = [curT];
-    while (curT !== this.state.saveDown.source) {
-      console.log("curT before ,", curT);
+    while (curT !== curSource) {
       curT = minDistPrev[curT];
       path.push(curT);
     }
-    await this.displayPath(path);
+    await this.displayPath(path, final);
+    return path;
   }
 
-  async displayPath(path) {
+  async displayPath(path, final) {
     for (let p = 0; p < path.length; p++) {
-      this.drawTile(this.canvasSingleDij, path[p], "gold", "gold");
+      let canv = this.canvasPT;
+      if (final) {
+        canv = this.canvasSingleDij;
+      }
+      this.drawTile(canv, path[p], "gold", "gold");
     }
   }
 
-  drawText(canvasID, text, center) {
+  drawText(canvasID, text, center, fillStyle = "black") {
     if (canvasID === null || canvasID === undefined) {
       return;
     }
     const ctx = canvasID.getContext("2d");
     const fontSize = Math.max(2, this.state.saveDown.tileSize - 5);
     ctx.font = `${fontSize}px Arial`;
-    ctx.fillStyle = "black";
+    ctx.fillStyle = fillStyle;
     ctx.fillText(
       text,
       center.x + this.state.center.x - fontSize / 2 + 2,
@@ -941,4 +1161,4 @@ class SingleDij extends React.Component {
   }
 }
 
-export default SingleDij;
+export default K2;

@@ -51,6 +51,9 @@ class CreateForm extends React.Component {
   }
 
   async handleSubmit(event) {
+    this.props.clearCurOutMode();
+    this.props.setSingleDij();
+
     event.preventDefault();
     this.props.resetDijOut();
     console.log("submitted form =", this.state);
@@ -194,7 +197,7 @@ class CreateForm extends React.Component {
           }}
         />
 
-        <div className="w3-container w3-grey" style={{ height: "400pt" }}>
+        <div className="w3-container w3-white" style={{ height: "400pt" }}>
           <FormVisualizer
             curNav={this.state.curNav}
             curState={this.state}

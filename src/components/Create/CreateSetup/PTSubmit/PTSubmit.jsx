@@ -16,29 +16,57 @@ class PTSubmit extends React.Component {
     this.props.setSingleDij();
   }
 
+  onBFS() {
+    this.props.setBFS();
+  }
+
+  onDFS() {
+    this.props.setDFS();
+  }
+
+  onK2() {
+    this.props.setK2();
+  }
+
   render() {
     return (
       <div className="w3-bar">
         <div className="w3-bar-item itemDiv">
-          {/* <input type="button" name="cl" onClick={this.onCL.bind(this)} /> */}
-          {/* <button
-            ref={this.singleDijSubmit}
-            name="singleDijSubmit"
-            className="halfItem buttonFont w3-white w3-button w3-hover-grey"
-            onClick={this.onSingleDij.bind(this)}
-          >
-            Single Dijsktra
-          </button> */}
-
           <Button
-            ref={this.singleDijSubmit}
             name="singleDijSubmit"
             variant="contained"
             onClick={this.onSingleDij.bind(this)}
             size="large"
             startIcon={<PlayArrow />}
           >
-            Single Dijkstra
+            Modified Dijkstra
+          </Button>{" "}
+          <Button
+            name="BFSSubmit"
+            variant="contained"
+            onClick={this.onBFS.bind(this)}
+            size="large"
+            startIcon={<PlayArrow />}
+          >
+            BFS
+          </Button>{" "}
+          <Button
+            name="DFSSubmit"
+            variant="contained"
+            onClick={this.onDFS.bind(this)}
+            size="large"
+            startIcon={<PlayArrow />}
+          >
+            DFS
+          </Button>{" "}
+          <Button
+            name="K2Submit"
+            variant="contained"
+            onClick={this.onK2.bind(this)}
+            size="large"
+            startIcon={<PlayArrow />}
+          >
+            K2 Search
           </Button>
         </div>
       </div>
